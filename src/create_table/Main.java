@@ -18,6 +18,7 @@ public class Main {
 		String table = FeatureStatsTable.featureStats(corpus, C.connectionString);
 		File tableFile = new File(C.outputPath,"featureStats.tex");
 		IOUtil.createAndWrite(tableFile, table);
+		System.out.println("Done.");
 	}
 
 }
