@@ -1,6 +1,13 @@
 Artifacts prepared for ISSTA-16-AE-6
+  background-color: #fff;    /* white */
+  background-color: #800;    /* maroon */
+  background-color: #f00;    /* red */
+  background-color: #808;    /* purple */
+  background-color: #f0f;    /* fuchsia */
 
-A brief tutorial of how to generate the main results table in the paper (Table 4) that lists the frequency of observed features in the corpus. This code does not mine GitHub for Python regexes, rather, it performs a feature analysis on an existing database of regexes. 
+oops cats are  ,sss you got me saveit bro
+
+A brief tutorial of how to generate the main results table in the paper (Table 4) that lists the frequency of observed features in the corpus. This code does not mine GitHub for Python regexes, rather, it performs a feature analysis on an existing database of regexes.
 
 DATA SOURCE
 The database of scraped regexes used in the paper is provided and used in the analysis: input/merged_report.db
@@ -14,7 +21,7 @@ ENVIRONMENT SETUP
 6. Check the output folder - a latex table should be present displaying the feature frequencies for the studied feature set, featureStats.tex.
 
 USING YOUR OWN REGEX DATABASE
-Note that the tool should work with any data set matching the schema. Here is information on how to recreate the database with your own corpus matching the schema: 
+Note that the tool should work with any data set matching the schema. Here is information on how to recreate the database with your own corpus matching the schema:
 
 The project builds the corpus using the following select statment:
 "select pattern, uniqueSourceID from RegexCitationMerged where (flags=0 or flags like 'arg%' or flags=128 or flags='re.DEBUG') and pattern!='arg1';"
@@ -36,12 +43,12 @@ Table2:(not used) nFiles: int, frequency: int
 
 nFiles counts the number of files a project has (not used)
 frequency indicates the number of times a project having nFiles was observed, (not used)
-[note these special values: 
+[note these special values:
 nFiles=-1 (not used): number of files observed by sourcer (tested for Python content)
 nFiles=-2 (not used): an error counter for refreshing a repository]
 
 THIS REPO IS SIMPLIFIED
-The version presented here is simplified, so that the source code is more clear - in the original and more complex version, the code automatically generated several minor tables, and gathered various statistics.  
+The version presented here is simplified, so that the source code is more clear - in the original and more complex version, the code automatically generated several minor tables, and gathered various statistics.
 The source code for these functions is available on the original repository (https://github.com/softwarekitty/tour_de_source).
 This version will accept a database as input and produce the main feature counting table as output, which should generalize to any source of valid patterns using a subset of PCRE features.
 So flags and functions will also be ignored so that this version of the tool can generalize.
