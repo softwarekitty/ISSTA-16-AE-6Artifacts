@@ -30,9 +30,9 @@ u'[^a-zA-Z0-9_]' 1,5
 '^\\s*\\n'  1,3,4
 ```
 
-At this time, all patterns must be followed by a tab and at least one project.
+At this time, all patterns must be followed by a tab and at least one project ID.
 
-No extra whitespace in input files, please.
+Patterns should be valid in Python.  No extra whitespace in input files, please.
 
 The following inputs files are available in the `inputs` folder:
 
