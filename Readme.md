@@ -5,7 +5,7 @@ The tools in this repo can be used to perform:
 - Regex Feature Frequency Analysis (step 1)
 - Regex Behavioral Clustering and Categorization (steps 2-5)
 
-as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Context in Python**](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/ISSTA16_paper_108.pdf).
+as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Context in Python**](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/comingSoon.pdf).
 
 ######This code does not mine GitHub for Python regexes.
 
