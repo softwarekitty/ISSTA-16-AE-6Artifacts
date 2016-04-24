@@ -1,29 +1,30 @@
 {
-    "step1_featureAnalysis_settings":{
-        "input_filename":"change-this-to-your-input-file.txt",
+    "step1_featureAnalysis":{
+        "input_filename":"minimalWorkingExample.txt",
         "rank_by_nPatterns___Default_is_rank_by_nProjects":false,
         "create_latex_table_only___Default_is_standalone_LaTeX_document":false
     },
-    "step2_generateTestStrings_settings":{
+    "step2_generateTestStrings":{
         "nTestStrings":400,
         "testStringDelimiter":"\nGeneratedStringAboveAndGeneratedStringBelow\n"
     },
-    "step3_generateSimilarityMatrix_settings":{
+    "step3_generateSimilarityMatrix":{
         "dump_halfMatrix":false,
         "dump_wholeMatrix":false,
         "dump_rowFiles":false,
         "dump_errorOutput":false,
         "for_speed_skip_computing_similarity_below":0.75
     },
-    "step4_generateClusters_settings":{
+    "step4_generateClusters":{
         "mcl_i__inflation":1.8,
         "mcl_p__pruneBelow":0.75,
         "mcl_k__neighborsToExplorePerStep":83,
         "keep_mcl_output":false,
         "dump_clusters_of_two_or_more_contents":true
     },
-    "step5_categorizeClusters_settings":{
+    "step5_categorizeClusters":{
         "for_speed_export_projectIDPatternIDMultiMap":true,
+        "represent_clusters_by_heaviest___Default_is_shortest":false,
         "categorization_controller":[
             {
                 "name":"Multi Matches",

@@ -16,11 +16,11 @@ as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Co
 
 
 1. Create a Java Project in Eclipse (use Java 1.7) using this repo as the project directory.
-2. Add the four jar files in the `lib` directory to the build path (commons-lang3-3.3.2.jar, antlr-3.5.2-complete.jar, commons-io-2.4.jar, jython-standalone-2.5.4-rc1.jar).
+2. Add the jar files in the `lib` directory to the build path.
 
 ___
 
-####Input Format
+####Inputs
 A tab-separated-values (tsv) file with Python patterns and a list of project IDs, like:
 
 ```
@@ -43,13 +43,13 @@ The following inputs files are available in the `inputs` folder:
 
 -----
 
-##Getting started
+##Getting Started
 
 Instructions for each step are in Readme files under the `src` directory.
 
 We suggest you try using 'minimalWorkingExample.txt' before trying larger inputs.
 
-####Workflow Directory Structure
+####Workflow
 
 ```
 _workflow
@@ -58,23 +58,28 @@ _workflow
        |_step3_generateSimilarityMatrix
        |_step4_generateClusters
        |_step5_categorizeClusters
-       |_step5_output
 ```
-1. Place your input file into the `step1_featureAnalysis` folder.
-2. Within 'ISSTA_16_AE_6_config.json', adjust the **input_filename** field to reflect your input.
-3. Perform step 1, following the instructions found in 'Readme_step1.md'.
-4. The output from running step 1 will be saved in `step2_generateTestStrings`.
-5. Now perform step 2, and so on.
 
-The output from one step is saved as the input for the next step (or later steps).
-Steps may be repeated to tune or troubleshoot.  Intermediate data may be inspected to validate desired behavior of a step.
-For the three provided inputs, you can check your results or skip a step using content from the `completed_workflows` folder.
-A variety of configuration details are tunable using fields in 'ISSTA_16_AE_6_config.json'.
+1. Empty the workflow folders from any previous runs.
+2. Within 'analysis_config.json', adjust the **input_filename** field to reflect which input you would like to use for step 1.  The default is: 'minimalWorkingExample.txt'.
+3. Perform step 1, following the instructions found in 'Readme_step1.md'.
+4. The output from running step 1 will be saved in `step1_featureAnalysis`.
+5. Now follow 'Readme_step2.md' to perform step 2, which will look for its input in `step1_featureAnalysis`, and save its output into `step2_generateTestStrings`, and so on.
+
+####Notes
+
+- The output from one step is used as the input for the next step (or later steps).
+
+- Steps may be repeated to tune or troubleshoot.  Intermediate data may be inspected to validate desired behavior of a step.
+
+- For the three provided inputs, you can check your results or skip a step using content from the `completed_workflows` folder.
+
+- A variety of analysis tuning and output settings are tunable using fields in 'analysis_config.json'.
 
 ######Step 2 requires virtualbox. (brew install Caskroom/cask/virtualbox)
 ######Step 3 may hang and must be run incrementally for large inputs.
 ######Step 4 requires mcl. (brew install homebrew/science/mcl)
-######Step 5 is interactive - make your own categories using 'ISSTA_16_AE_6_config.json'
+######Step 5 is interactive - make your own categories using 'analysis_config.json'
 
 _____
 
