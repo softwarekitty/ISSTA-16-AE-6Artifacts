@@ -17,7 +17,6 @@ as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Co
 
 1. Create a Java Project in Eclipse (use Java 1.7) using this repo as the project directory.
 2. Add the four jar files in the `lib` directory to the build path (commons-lang3-3.3.2.jar, antlr-3.5.2-complete.jar, commons-io-2.4.jar, jython-standalone-2.5.4-rc1.jar).
-3. In 'ISSTA_16_AE_6_config.json', change the value for the **home_path** key to specify the location of this repo.
 
 ___
 
@@ -68,9 +67,9 @@ _workflow
 5. Now perform step 2, and so on.
 
 The output from one step is saved as the input for the next step (or later steps).
-Steps may be repeated to tune or troubleshoot.  Intermediate data may be inspected.
-A variety of configuration details are tunable using fields in 'ISSTA_16_AE_6_config.json'.
+Steps may be repeated to tune or troubleshoot.  Intermediate data may be inspected to validate desired behavior of a step.
 For the three provided inputs, you can check your results or skip a step using content from the `completed_workflows` folder.
+A variety of configuration details are tunable using fields in 'ISSTA_16_AE_6_config.json'.
 
 ######Step 2 requires virtualbox. (brew install Caskroom/cask/virtualbox)
 ######Step 3 may hang and must be run incrementally for large inputs.

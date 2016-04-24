@@ -1,5 +1,4 @@
 {
-    "home_path":"change/this/to/where/the/repo/lives",
     "step1_featureAnalysis_settings":{
         "input_filename":"change-this-to-your-input-file.txt",
         "rank_by_nPatterns___Default_is_rank_by_nProjects":false,
