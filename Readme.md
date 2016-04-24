@@ -1,56 +1,94 @@
-Artifacts prepared for ISSTA-16-AE-6
-  background-color: #fff;    /* white */
-  background-color: #800;    /* maroon */
-  background-color: #f00;    /* red */
-  background-color: #808;    /* purple */
-  background-color: #f0f;    /* fuchsia */
+##Artifacts prepared for ISSTA-16-AE-6
 
-oops cats are  ,sss you got me saveit bro
+The tools in this repo can be used to perform:
 
-A brief tutorial of how to generate the main results table in the paper (Table 4) that lists the frequency of observed features in the corpus. This code does not mine GitHub for Python regexes, rather, it performs a feature analysis on an existing database of regexes.
+- Regex Feature Frequency Analysis (step 1)
+- Regex Behavioral Clustering and Categorization (steps 2-5)
 
-DATA SOURCE
-The database of scraped regexes used in the paper is provided and used in the analysis: input/merged_report.db
+as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Context in Python**](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/ISSTA16_paper_108.pdf).
 
-ENVIRONMENT SETUP
-1. Use the source to create a Java Project in Eclipse (use Java 1.7)
-2. Add the five included jar files to the build path (commons-lang3-3.3.2.jar, antlr-3.5.2-complete.jar, sqlite-jdbc-3.7.2.jar, commons-io-2.4.jar, jython-standalone-2.5.4-rc1.jar)
-3. In the `src/c/C.java’ file, change the `artifactPath' file to the root of this cloned repo.
-4. Check the output folder - the only content is a ‘dummyFile’.
-5. Run the main() function in the src/create_table/Main.java file. (Some error noise from the PCRE parser is normal - ignore this unless the program stops prematurely. The word, “Done.” will print to the console when the process is complete. This should take no more than 5 minutes on a standard laptop.)
-6. Check the output folder - a latex table should be present displaying the feature frequencies for the studied feature set, featureStats.tex.
+######This code does not mine GitHub for Python regexes.
 
-USING YOUR OWN REGEX DATABASE
-Note that the tool should work with any data set matching the schema. Here is information on how to recreate the database with your own corpus matching the schema:
+-----
 
-The project builds the corpus using the following select statment:
-"select pattern, uniqueSourceID from RegexCitationMerged where (flags=0 or flags like 'arg%' or flags=128 or flags='re.DEBUG') and pattern!='arg1';"
-
-So a corpus can be build from any database conforming to the following schema:
-Table1:(USED) uniqueSourceID: int, repoID: int, sourceJSON: text, fileHash: char(44), filePath: text, pattern: text, flags: int, regexFunction: int
-
-uniqueSourceID is an int unique to a source project (USED)
-repoID is the ID assigned by GitHub to a repo (not used)
-sourceJSON contains data about the clone_url, etc (not used)
-the fileHash is the SHA_224 hash of the original source file (not used)
-the filePath is the path of the file relative to the repo root folder. (not used)
-the pattern is the string used to define the regex (USED)
-Flags 0,2,4,8,16,32,64 and 128 map to their internal Python values, as indicated in this source code. (USED: all utilizations ignored except those using flags: 0, like 'arg%', 128, 're.DEBUG')
-regexFunction maps 0,1,2,3,4,5,6 to the 7 functions of Python's re module, as indicated in this source code. (not used)
+####Set up Eclipse, jars and home_path
 
 
-Table2:(not used) nFiles: int, frequency: int
+1. Create a Java Project in Eclipse (use Java 1.7) using this repo as the project directory.
+2. Add the four jar files in the `lib` directory to the build path (commons-lang3-3.3.2.jar, antlr-3.5.2-complete.jar, commons-io-2.4.jar, jython-standalone-2.5.4-rc1.jar).
+3. In 'ISSTA_16_AE_6_config.json', change the value for the **home_path** key to specify the location of this repo.
 
-nFiles counts the number of files a project has (not used)
-frequency indicates the number of times a project having nFiles was observed, (not used)
-[note these special values:
-nFiles=-1 (not used): number of files observed by sourcer (tested for Python content)
-nFiles=-2 (not used): an error counter for refreshing a repository]
 
-THIS REPO IS SIMPLIFIED
-The version presented here is simplified, so that the source code is more clear - in the original and more complex version, the code automatically generated several minor tables, and gathered various statistics.
-The source code for these functions is available on the original repository (https://github.com/softwarekitty/tour_de_source).
-This version will accept a database as input and produce the main feature counting table as output, which should generalize to any source of valid patterns using a subset of PCRE features.
-So flags and functions will also be ignored so that this version of the tool can generalize.
+####Input Format
+A tab-separated-values (tsv) file with Python patterns and a list of project IDs, like:
+
+```
+"ab*c"  1,2
+"(?:\\d+)\.(\\d+)"   2,3,5
+u'[^a-zA-Z0-9_]' 1,5
+'^[-\\w]+$' 2
+'^\\s*\\n'  1,3,4
+```
+
+At this time, all patterns must be followed by a tab and at least one project.
+
+No extra whitespace in input files, please.
+
+The following inputs files are available in the `inputs` folder:
+
+- 'minimalWorkingExample.txt' (two regexes)
+- 'eightClusters.txt' (100 regexes)
+- 'fullCorpus.txt' (13,597 regexes)
+
+-----
+
+##Getting started
+
+Instructions for each step are in Readme files under the `src` directory.
+
+We suggest you try using 'minimalWorkingExample.txt' before trying larger inputs.
+
+####Workflow Directory Structure
+
+```
+_workflow
+       |_step1_featureAnalysis
+       |_step2_generateTestStrings
+       |_step3_generateSimilarityMatrix
+       |_step4_generateClusters
+       |_step5_categorizeClusters
+       |_step5_output
+```
+1. Place your input file into the `step1_featureAnalysis` folder.
+2. Within 'ISSTA_16_AE_6_config.json', adjust the **input_filename** field to reflect your input.
+3. Perform step 1, following the instructions found in 'Readme_step1.md'.
+4. The output from running step 1 will be saved in `step2_generateTestStrings`.
+5. Now perform step 2, and so on.
+
+The output from one step is saved as the input for the next step (or later steps).
+Steps may be repeated to tune or troubleshoot.  Intermediate data may be inspected.
+A variety of configuration details are tunable using fields in 'ISSTA_16_AE_6_config.json'.
+For the three provided inputs, you can check your results or skip a step using content from the `completed_workflows` folder.
+
+######Step 2 requires virtualbox. (brew install Caskroom/cask/virtualbox)
+######Step 3 may hang and must be run incrementally for large inputs.
+######Step 4 requires mcl. (brew install homebrew/science/mcl)
+######Step 5 is interactive - make your own categories using 'ISSTA_16_AE_6_config.json'
+
+_____
+
+
+##F.A.Q.
+####why Python?
+It was not an arbitrary choice, but it was not the only option, either.  JavaScript would have been a reasonable alternative using our rationalle.  Consider first that regular expression languages have different feature sets, and doing this analysis takes some time.  In order to maximize the impact of the research, we wanted a language that *includes* common features (features shared by other languages) and *excludes* rare features (features not shared by many other languaes).  Python fits this description, as can be seen by looking at [a comparison of language feature sets](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/languageTables.pdf) from [my thesis](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/thesis.pdf).
+
+####where is the mining code?
+It can be found in the [tour_de_source](https://github.com/softwarekitty/tour_de_source) repo, but it is not groomed for public consumption, and is probably not an optimal mining solution.
+
+####why not use formal tools for behavioral analysis?
+Because the tools we found cannot handle regexes using certain common features, like '$'.
+
+####how can I submit an error report, bug report or pull requrest?
+Please open an issue if you find any problems or want to be a contributor.
 
 
