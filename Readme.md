@@ -6,7 +6,7 @@ The tools in this repo can be used to perform:
 - Regex Behavioral Clustering and Categorization (steps 2-5)
 
 
-as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Context in Python**](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/comingSoon.pdf).
+as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Context in Python**](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/blob/master/pdf/comingSoon.pdf).
 
 ######This code does not mine GitHub for Python regexes.
 
@@ -19,6 +19,7 @@ as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Co
 2. Add the four jar files in the `lib` directory to the build path (commons-lang3-3.3.2.jar, antlr-3.5.2-complete.jar, commons-io-2.4.jar, jython-standalone-2.5.4-rc1.jar).
 3. In 'ISSTA_16_AE_6_config.json', change the value for the **home_path** key to specify the location of this repo.
 
+___
 
 ####Input Format
 A tab-separated-values (tsv) file with Python patterns and a list of project IDs, like:
@@ -81,7 +82,7 @@ _____
 
 ##F.A.Q.
 ####why Python?
-It was not an arbitrary choice, but it was not the only option, either.  JavaScript would have been a reasonable alternative using our rationalle.  Consider first that regular expression languages have different feature sets, and doing this analysis takes some time.  In order to maximize the impact of the research, we wanted a language that *includes* common features (features shared by other languages) and *excludes* rare features (features not shared by many other languaes).  Python fits this description, as can be seen by looking at [a comparison of language feature sets](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/languageTables.pdf) from [my thesis](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/thesis.pdf).
+It was not an arbitrary choice, but it was not the only option, either.  JavaScript would have been a reasonable alternative using our rationalle.  Consider first that regular expression languages have different feature sets, and doing this analysis takes some time.  In order to maximize the impact of the research, we wanted a language that *includes* common features (features shared by other languages) and *excludes* rare features (features not shared by many other languaes).  Python fits this description, as can be seen by looking at [a comparison of language feature sets](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/blob/master/languageTables.pdf) from [my thesis](https://github.com/softwarekitty/ISSTA-16-AE-6Artifacts/pdf/blob/master/thesis.pdf).
 
 ####where is the mining code?
 It can be found in the [tour_de_source](https://github.com/softwarekitty/tour_de_source) repo, but it is not groomed for public consumption, and is probably not an optimal mining solution.
