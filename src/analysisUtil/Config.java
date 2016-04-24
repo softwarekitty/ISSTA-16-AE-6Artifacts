@@ -50,6 +50,7 @@ public class Config {
 		
 		this.nTestStrings = stepObjects[1].getInt(N_TEST_STRINGS);
 		this.testStringDelimiter = stepObjects[1].getString(TEST_STRING_DELIMITER);
+		
 		this.shouldDumpHalfMatrix = stepObjects[2].getBoolean(DUMP_HALF_MATRIX);
 		this.shouldDumpWholeMatrix = stepObjects[2].getBoolean(DUMP_WHOLE_MATRIX);
 		this.shouldDumpRowFiles = stepObjects[2].getBoolean(DUMP_ROW_FILES);
@@ -61,8 +62,8 @@ public class Config {
 		this.mclK = stepObjects[3].getDouble(MCL_K);
 		this.shouldKeepMCLOutput = stepObjects[3].getBoolean(KEEP_MCL_OUTPUT);
 		this.shouldDumpClusters = stepObjects[3].getBoolean(DUMP_CLUSTERS_OF_TWO_OR_MORE);
-		this.shouldExportProjectIDPatternMM = stepObjects[4].getBoolean(EXPORT_PROJECT_ID_PATTERN_MM);
 		
+		this.shouldExportProjectIDPatternMM = stepObjects[4].getBoolean(EXPORT_PROJECT_ID_PATTERN_MM);
 		this.clusterSpecs = new LinkedList<ClusterMemberSpec>();
 		JSONArray categories = stepObjects[4].getJSONArray(CATEGORIZATION_CONTROLLER);
 		for(int i=0;i<categories.length();i++){
