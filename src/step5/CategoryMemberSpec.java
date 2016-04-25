@@ -1,4 +1,4 @@
-package core.categories;
+package step5;
 
 import java.util.TreeSet;
 

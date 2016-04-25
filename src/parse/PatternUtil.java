@@ -3,6 +3,7 @@ package parse;
 import org.python.util.PythonInterpreter;
 
 import core.features.FeatureCount;
+import parse.pcre.PCRE;
 
 //TODO - TEST ME, PLEEASE
 public class PatternUtil {

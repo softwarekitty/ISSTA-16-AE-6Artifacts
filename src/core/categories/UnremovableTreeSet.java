@@ -11,7 +11,7 @@ import java.util.TreeSet;
  * This may be breaking the Collections contract, in spirit at least.
  * 
  * It is handy for implementing sets without complexity of removal - it's a
- * temporary measure.
+ * temporary measure with nice properties.
  * 
  * @author cc
  *

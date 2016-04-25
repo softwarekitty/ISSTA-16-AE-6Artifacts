@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import parse.PCREParser;
+import parse.pcre.PCREParser;
 
 /**
  * represents the number of each feature present

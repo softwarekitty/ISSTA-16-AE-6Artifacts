@@ -11,7 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import core.categories.CategoryMemberSpec;
+import step5.CategoryMemberSpec;
 
 /**
  * represent the contents of the analysis config file

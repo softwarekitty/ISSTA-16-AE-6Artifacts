@@ -1,6 +1,6 @@
 // $ANTLR 3.5.2 PCRE.g 2014-07-20 13:43:39
 // from: https://github.com/bkiers/pcre-parser
-package parse;
+package parse.pcre;
 
 import java.util.Map;
 import java.util.TreeMap;
