@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TreeSet;
 
-import core.corpus.RegexProjectSet;
-import core.metric.FeatureDictionary;
+import core.RegexProjectSet;
+import core.features.FeatureDictionary;
 
 public class FeatureStatsTable {
 

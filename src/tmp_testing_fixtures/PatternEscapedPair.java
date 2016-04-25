@@ -1,7 +1,7 @@
-package core.corpus;
+package tmp_testing_fixtures;
 
-import exceptions.QuoteRuleException;
-
+import parse.PatternUtil;
+import parse.QuoteRuleException;
 
 public class PatternEscapedPair implements Comparable<PatternEscapedPair>{
 	private final String pattern;

@@ -1,4 +1,4 @@
-package core.corpus;
+package tmp_testing_fixtures;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,12 +16,15 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import core.categories.BehavioralCategories;
-import exceptions.AlienFeatureException;
-import exceptions.PythonParsingException;
-import exceptions.QuoteRuleException;
-import io.util.IOUtil;
+import core.RegexProjectSet;
+import core.features.AlienFeatureException;
+import io.IOUtil;
+import parse.PythonParsingException;
+import parse.QuoteRuleException;
+import step5.BehavioralCategories;
 
+
+// use these to test loading and for step 5
 public class CorpusUtil {
 
 	public static final String connectionString = "jdbc:sqlite:/Users/carlchapman/Documents/SoftwareProjects/tour_de_source/tools/merged/merged_report.db";
@@ -124,103 +127,90 @@ public class CorpusUtil {
 		return corpus;
 	}
 
-	public static TreeSet<RegexProjectSet> reloadCorpus(String inputSourcePath) throws IOException,
-			IllegalArgumentException, QuoteRuleException,
-			PythonParsingException {
-		TreeSet<RegexProjectSet> corpus = new TreeSet<RegexProjectSet>();
-		List<String> lines = IOUtil.readLines(inputSourcePath);
-		for (String line : lines) {
-			String[] parts = line.split("\t");
-			String[] IDs = parts[1].split(",");
-			TreeSet<Integer> IDSet = new TreeSet<Integer>();
-			for (String id : IDs) {
-				IDSet.add(Integer.parseInt(id));
-			}
-			corpus.add(new RegexProjectSet(parts[0], IDSet));
-		}
-		return corpus;
-	}
 
-
-
-
-
-//	public static void main(String[] args) throws ClassNotFoundException,
-//			IllegalArgumentException, SQLException, QuoteRuleException,
-//			PythonParsingException, IOException {
-//		HashMap<String, Integer> patternIndexMap = BehavioralCategories.getPatternIndexMap();
-//		TreeSet<RegexProjectSet> corpus = reloadCorpus();
+////     builds the original projectIDPatternIDMultiMap
+//////	public static void main(String[] args) throws ClassNotFoundException,
+//////			IllegalArgumentException, SQLException, QuoteRuleException,
+//////			PythonParsingException, IOException {
+//////		HashMap<String, Integer> patternIndexMap = BehavioralCategories.getPatternIndexMap();
+//////		TreeSet<RegexProjectSet> corpus = reloadCorpus();
+//////
+//////		// now building a reloadable file that maps projectIDs to their
+//////		// patterns' javaIDs
+//////		StringBuilder sb = new StringBuilder();
+//////		File dumpWithIndices = new File(BehavioralCategories.homePath, "projectIDPatternIDMultiMap.txt");
+//////		HashMap<Integer, TreeSet<RegexProjectSet>> initial = initializeProjectPatternMM(connectionString,patternIndexMap);
+//////
+//////		StringBuilder contents = new StringBuilder();
+//////		for (Entry<Integer, TreeSet<RegexProjectSet>> e : initial.entrySet()) {
+//////			contents.append(e.getKey().toString() + "\t" +
+//////				getCSV(e.getValue(),patternIndexMap) + "\n");
+//////		}
+//////		IOUtil.createAndWrite(dumpWithIndices, contents.toString());
+//////		HashMap<Integer, TreeSet<RegexProjectSet>> reloaded = reloadProjectPatternMM(corpus);
+//////		System.out.println(reloaded.equals(initial));
+//////	}
 //
-//		// now building a reloadable file that maps projectIDs to their
-//		// patterns' javaIDs
+//	private static String getCSV(TreeSet<RegexProjectSet> value,HashMap<String, Integer> patternIndexMap) {
 //		StringBuilder sb = new StringBuilder();
-//		File dumpWithIndices = new File(BehavioralCategories.homePath, "projectIDPatternIDMultiMap.txt");
-//		HashMap<Integer, TreeSet<RegexProjectSet>> initial = initializeProjectPatternMM(connectionString,patternIndexMap);
-//
-//		StringBuilder contents = new StringBuilder();
-//		for (Entry<Integer, TreeSet<RegexProjectSet>> e : initial.entrySet()) {
-//			contents.append(e.getKey().toString() + "\t" +
-//				getCSV(e.getValue(),patternIndexMap) + "\n");
+//		for(RegexProjectSet y : value){
+//			sb.append(patternIndexMap.get(y.getPattern()));
+//			sb.append(",");
 //		}
-//		IOUtil.createAndWrite(dumpWithIndices, contents.toString());
-//		HashMap<Integer, TreeSet<RegexProjectSet>> reloaded = reloadProjectPatternMM(corpus);
-//		System.out.println(reloaded.equals(initial));
+//		sb.deleteCharAt(sb.lastIndexOf(","));
+//		return sb.toString();
 //	}
-
-	private static String getCSV(TreeSet<RegexProjectSet> value,HashMap<String, Integer> patternIndexMap) {
-		StringBuilder sb = new StringBuilder();
-		for(RegexProjectSet y : value){
-			sb.append(patternIndexMap.get(y.getPattern()));
-			sb.append(",");
-		}
-		sb.deleteCharAt(sb.lastIndexOf(","));
-		return sb.toString();
-	}
-
-	// public static void main(String[] args) throws ClassNotFoundException,
-	// IllegalArgumentException, SQLException, QuoteRuleException,
-	// PythonParsingException, IOException {
+	
+	
+//  this one just dumps patterns with their index so you can try to cluster, boring
+	// later versions are better
 	//
-	// // now we are dumping the corpus with the java indices, for behavioral
-	// clustering
-	// StringBuilder sb = new StringBuilder();
-	// File dumpWithIndices = new File(BehavioralCategories.behavioralPath,
-	// "indexedOrderedCorpusDump.txt");
-	// HashMap<String, Integer> patternIndexMap =
-	// BehavioralCategories.getPatternIndexMap();
-	// TreeSet<RegexProjectSet> loadedC = reloadCorpus();
-	// for(RegexProjectSet rps : loadedC){
-	// String original = rps.getContent();
-	// Integer index = patternIndexMap.get(original);
-	// sb.append(index+"\t"+rps.getRankableValue()+"\t"+original+"\n");
-	// }
-	//
-	// IOUtil.createAndWrite(dumpWithIndices, sb.toString());
-	// }
+//	// public static void main(String[] args) throws ClassNotFoundException,
+//	// IllegalArgumentException, SQLException, QuoteRuleException,
+//	// PythonParsingException, IOException {
+//	//
+//	// // now we are dumping the corpus with the java indices, for behavioral
+//	// clustering
+//	// StringBuilder sb = new StringBuilder();
+//	// File dumpWithIndices = new File(BehavioralCategories.behavioralPath,
+//	// "indexedOrderedCorpusDump.txt");
+//	// HashMap<String, Integer> patternIndexMap =
+//	// BehavioralCategories.getPatternIndexMap();
+//	// TreeSet<RegexProjectSet> loadedC = reloadCorpus();
+//	// for(RegexProjectSet rps : loadedC){
+//	// String original = rps.getContent();
+//	// Integer index = patternIndexMap.get(original);
+//	// sb.append(index+"\t"+rps.getRankableValue()+"\t"+original+"\n");
+//	// }
+//	//
+//	// IOUtil.createAndWrite(dumpWithIndices, sb.toString());
+//	// }
 
-	// public static void main(String[] args) throws ClassNotFoundException,
-	// IllegalArgumentException, SQLException, QuoteRuleException,
-	// PythonParsingException, IOException{
-	// //here we serialize the corpus, to avoid lag in development waiting for
-	// corpus to build again
-	// File corpusFile = new File(IOUtil.dataPath +
-	// IOUtil.CORPUS,"serializedCorpus.txt");
-	// File loadedFile = new File(IOUtil.dataPath +
-	// IOUtil.CORPUS,"loadedCorpus.txt");
-	// TreeSet<RegexProjectSet> corpus =
-	// initializeCorpus(Step1_CreateCandidateFiles.connectionString);
-	// StringBuilder contents = new StringBuilder();
-	// for(RegexProjectSet rps :corpus){
-	// contents.append(rps.getContent()+"\t"+rps.getProjectsCSV()+"\n");
-	// }
-	// IOUtil.createAndWrite(corpusFile,contents.toString());
-	// TreeSet<RegexProjectSet> loadedC = reloadCorpus();
-	// StringBuilder contents2 = new StringBuilder();
-	// for(RegexProjectSet rps :loadedC){
-	// contents2.append(rps.getContent()+"\t"+rps.getProjectsCSV()+"\n");
-	// }
-	// IOUtil.createAndWrite(loadedFile,contents2.toString());
-	// System.out.println(corpus.equals(loadedC));
-	// }
+	
+//	build the original serialized corpus file, should build into a test fixture.
+//	// public static void main(String[] args) throws ClassNotFoundException,
+//	// IllegalArgumentException, SQLException, QuoteRuleException,
+//	// PythonParsingException, IOException{
+//	// //here we serialize the corpus, to avoid lag in development waiting for
+//	// corpus to build again
+//	// File corpusFile = new File(IOUtil.dataPath +
+//	// IOUtil.CORPUS,"serializedCorpus.txt");
+//	// File loadedFile = new File(IOUtil.dataPath +
+//	// IOUtil.CORPUS,"loadedCorpus.txt");
+//	// TreeSet<RegexProjectSet> corpus =
+//	// initializeCorpus(Step1_CreateCandidateFiles.connectionString);
+//	// StringBuilder contents = new StringBuilder();
+//	// for(RegexProjectSet rps :corpus){
+//	// contents.append(rps.getContent()+"\t"+rps.getProjectsCSV()+"\n");
+//	// }
+//	// IOUtil.createAndWrite(corpusFile,contents.toString());
+//	// TreeSet<RegexProjectSet> loadedC = reloadCorpus();
+//	// StringBuilder contents2 = new StringBuilder();
+//	// for(RegexProjectSet rps :loadedC){
+//	// contents2.append(rps.getContent()+"\t"+rps.getProjectsCSV()+"\n");
+//	// }
+//	// IOUtil.createAndWrite(loadedFile,contents2.toString());
+//	// System.out.println(corpus.equals(loadedC));
+//	// }
 
 }

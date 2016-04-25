@@ -1,6 +1,6 @@
 package core.categories;
 
-import core.corpus.RegexProjectSet;
+import core.RegexProjectSet;
 
 /**
  * a Category is a set of clusters.

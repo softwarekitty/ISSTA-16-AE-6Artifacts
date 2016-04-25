@@ -1,6 +1,6 @@
 // $ANTLR 3.5.2 PCRE.g 2014-07-20 13:43:39
 // from: https://github.com/bkiers/pcre-parser
-package pcre;
+package parse;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 import org.antlr.runtime.tree.*;
 
-import core.metric.FeatureDictionary;
+import core.features.FeatureDictionary;
 
 @SuppressWarnings("all")
 public class PCREParser extends Parser {

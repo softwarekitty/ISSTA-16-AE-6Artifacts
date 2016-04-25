@@ -1,4 +1,4 @@
-package core.metric;
+package core.features;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +10,7 @@ import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import exceptions.AlienFeatureException;
-import pcre.PCREParser;
+import parse.PCREParser;
 
 /**
  * represents the number of each feature present

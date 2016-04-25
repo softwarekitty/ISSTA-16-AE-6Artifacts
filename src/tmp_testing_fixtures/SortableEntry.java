@@ -1,4 +1,4 @@
-package core.corpus;
+package tmp_testing_fixtures;
 
 import java.util.TreeSet;
 

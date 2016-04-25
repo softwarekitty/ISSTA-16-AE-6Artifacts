@@ -1,4 +1,4 @@
-package core.metric;
+package core.features;
 
 import java.util.HashMap;
 

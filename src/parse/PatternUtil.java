@@ -1,6 +1,8 @@
-package core.corpus;
+package parse;
 
-import exceptions.QuoteRuleException;
+import org.python.util.PythonInterpreter;
+
+import core.features.FeatureCount;
 
 //TODO - TEST ME, PLEEASE
 public class PatternUtil {
@@ -54,6 +56,23 @@ public class PatternUtil {
 		}
 		int threeFromEnd = s.length() - 3;
 		return s.startsWith(tripple) && s.substring(threeFromEnd).equals(tripple);
+	}
+
+	public static void validatePythonRegex(String pattern) throws PythonParsingException {
+		try {
+
+			// make sure the pattern is a valid regex
+			PythonInterpreter interpreter = new PythonInterpreter();
+			interpreter.exec("import re");
+			interpreter.exec("x = re.compile(" + pattern + ")");
+		} catch (Exception e) {
+			throw new PythonParsingException("Failure when trying to compile pattern in Python: " + pattern);
+		}
+
+	}
+
+	public static FeatureCount getFeatureCount(String pattern, String rawPattern) {
+		return new FeatureCount(new PCRE(rawPattern).getCommonTree(), pattern);
 	}
 
 	// // some quick tests done here

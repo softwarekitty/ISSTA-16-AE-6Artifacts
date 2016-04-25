@@ -1,4 +1,4 @@
-package io.util;
+package io;
 
 import java.io.File;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
+import core.RegexProjectSet;
 import core.categories.Cluster;
-import core.corpus.RegexProjectSet;
 
 /**
  * helps to prepare human readable data dumps

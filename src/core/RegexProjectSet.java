@@ -1,15 +1,11 @@
-package core.corpus;
+package core;
 
 import java.util.TreeSet;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.python.util.PythonInterpreter;
-
-import core.metric.FeatureCount;
-import exceptions.PythonParsingException;
-import exceptions.QuoteRuleException;
-import io.util.DumpUtil;
-import pcre.PCRE;
+import core.features.FeatureCount;
+import parse.PatternUtil;
+import parse.PythonParsingException;
+import parse.QuoteRuleException;
 
 /**
  * a RegexProjectSet is a pattern String and a set of project IDs.
@@ -21,6 +17,9 @@ import pcre.PCRE;
  * features in the studied feature set.
  * 
  * The set of project IDs must not be empty.
+ * 
+ * the rawPattern (unquoted and unescaped), and FeatureCount are a byproduct of
+ * the validity checks, and so are kept here for future use.
  * 
  * @author cc
  *
@@ -46,19 +45,10 @@ public final class RegexProjectSet implements Comparable<RegexProjectSet> {
 				throw new IllegalArgumentException("projectIDSet cannot be null or empty for pattern: " + pattern);
 			}
 			this.projectIDSet = projectIDSet;
-			try {
-
-				// make sure the pattern is a valid regex
-				PythonInterpreter interpreter = new PythonInterpreter();
-				interpreter.exec("import re");
-				interpreter.exec("x = re.compile(" + pattern + ")");
-			} catch (Exception e) {
-				throw new PythonParsingException("Failure when trying to compile pattern in Python: " + pattern);
-			}
+			PatternUtil.validatePythonRegex(pattern);
 
 			// parse into the Commontree to count features
-			CommonTree rootTree = new PCRE(rawPattern).getCommonTree();
-			this.features = new FeatureCount(rootTree, pattern);
+			this.features = PatternUtil.getFeatureCount(pattern, rawPattern);
 		}
 	}
 
@@ -102,6 +92,11 @@ public final class RegexProjectSet implements Comparable<RegexProjectSet> {
 		return defensiveCopy;
 	}
 
+	/**
+	 * gets the feature count for this regex
+	 * 
+	 * @return The feature count for this regex
+	 */
 	public FeatureCount getFeatures() {
 		return features;
 	}
@@ -134,7 +129,7 @@ public final class RegexProjectSet implements Comparable<RegexProjectSet> {
 			}
 		}
 	}
-	
+
 	///// hashcode, toString, equals /////
 
 	@Override
@@ -170,6 +165,6 @@ public final class RegexProjectSet implements Comparable<RegexProjectSet> {
 
 	@Override
 	public String toString() {
-		return DumpUtil.regexRow(this);
+		return "RegexProjectSet [pattern=" + pattern + ", projectIDSet=" + projectIDSet + "]";
 	}
 }

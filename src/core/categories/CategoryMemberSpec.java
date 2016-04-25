@@ -1,9 +1,9 @@
-package io.config;
+package core.categories;
 
 import java.util.TreeSet;
 
 /**
- * represent one category membership specification, where a cluster ID is an
+ * represents one category membership specification, where a cluster ID is an
  * integer, and the members of a category are clusters, specified by their
  * cluster ID.
  * 

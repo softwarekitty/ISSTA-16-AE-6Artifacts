@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import core.corpus.RegexProjectSet;
+import core.RegexProjectSet;
 
 /**
  * A cluster is a set of regexes.
