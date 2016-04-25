@@ -21,7 +21,7 @@ as published in the ISSTA-16 paper, [**Exploring Regular Expression Usage and Co
 ___
 
 ####Inputs
-A tab-separated-values (tsv) file with Python patterns and a list of project IDs, like:
+A tab-separated-values (tsv) file with Python patterns and a CSV list of project IDs, like:
 
 ```
 "ab*c"  1,2
@@ -33,7 +33,9 @@ u'[^a-zA-Z0-9_]' 1,5
 
 At this time, all patterns must be followed by a tab and at least one project ID.
 
-Patterns should be valid in Python.  No extra whitespace in input files, please.
+Patterns should be valid in Python - raw Python Strings are not supported at this time.
+
+No extra lines or whitespace in input files, please.
 
 The following inputs files are available in the `inputs` folder:
 
@@ -76,7 +78,7 @@ _workflow
 
 - A variety of analysis tuning and output settings are tunable using fields in 'analysis_config.json'.
 
-######Step 2 requires virtualbox. (brew install Caskroom/cask/virtualbox)
+######Step 2 requires virtualbox. (brew install Caskroom/cask/virtualbox Caskroom/cask/virtualbox-extension-pack)
 ######Step 3 may hang and must be run incrementally for large inputs.
 ######Step 4 requires mcl. (brew install homebrew/science/mcl)
 ######Step 5 is interactive - make your own categories using 'analysis_config.json'
