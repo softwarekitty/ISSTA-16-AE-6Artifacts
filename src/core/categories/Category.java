@@ -1,6 +1,6 @@
-package analysis.categories;
+package core.categories;
 
-import analysis.build_corpus.RegexProjectSet;
+import core.corpus.RegexProjectSet;
 
 /**
  * a Category is a set of clusters.

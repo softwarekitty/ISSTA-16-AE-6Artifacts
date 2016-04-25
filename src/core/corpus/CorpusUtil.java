@@ -1,6 +1,5 @@
-package analysis.build_corpus;
+package core.corpus;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,14 +16,11 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import analysis.build_corpus.PatternEscapedPair;
-import analysis.build_corpus.RegexProjectSet;
-import analysis.build_corpus.SortableEntry;
-import analysis.categories.BehavioralCategories;
-import analysis.exceptions.AlienFeatureException;
-import analysis.exceptions.PythonParsingException;
-import analysis.exceptions.QuoteRuleException;
-import analysis.util.IOUtil;
+import core.categories.BehavioralCategories;
+import exceptions.AlienFeatureException;
+import exceptions.PythonParsingException;
+import exceptions.QuoteRuleException;
+import io.util.IOUtil;
 
 public class CorpusUtil {
 
@@ -145,81 +141,9 @@ public class CorpusUtil {
 		return corpus;
 	}
 
-	public static HashMap<Integer, TreeSet<RegexProjectSet>> reloadProjectPatternMM(TreeSet<RegexProjectSet> corpus)
-			throws IOException, IllegalArgumentException, QuoteRuleException,
-			PythonParsingException {
-		HashMap<Integer, TreeSet<RegexProjectSet>> reloadedProjectPatternMM = new HashMap<Integer, TreeSet<RegexProjectSet>>();
-		HashMap<String, Integer> patternIndexMap = BehavioralCategories.getPatternIndexMap();
-		//TODO
-//		HashMap<Integer, RegexProjectSet> lookup = BehavioralCategories.getLookup(BehavioralCategories.filtered_corpus_path, corpus, patternIndexMap);
-
-//		File dumpWithIndices = new File(BehavioralCategories.homePath, "projectIDPatternIDMultiMap.txt");
-		//TODO
-		String serializedProjectPatternMM = IOUtil.readFileToString("fix this file path");
-		Pattern finder = Pattern.compile("(\\d+)\\t(.*)");
-		Matcher pairMatcher = finder.matcher(serializedProjectPatternMM);
-		while (pairMatcher.find()) {
-			String projectID = pairMatcher.group(1);
-			String patternIDList = pairMatcher.group(2);
-			List<String> patternIDs = Arrays.asList(patternIDList.split(","));
-			TreeSet<RegexProjectSet> regexesInAProject = new TreeSet<RegexProjectSet>();
-			for (String IDString : patternIDs) {
-				Integer ID = Integer.parseInt(IDString);
-				//TODO
-//				regexesInAProject.add(lookup.get(ID));
-			}
-			reloadedProjectPatternMM.put(Integer.parseInt(projectID), regexesInAProject);
-
-		}
-		return reloadedProjectPatternMM;
-	}
-
-	public static HashMap<Integer, TreeSet<RegexProjectSet>> initializeProjectPatternMM(
-			String connectionString,HashMap<String, Integer> patternIndexMap) throws IOException,
-			IllegalArgumentException, QuoteRuleException,
-			PythonParsingException, SQLException, ClassNotFoundException {
-		HashMap<Integer, TreeSet<RegexProjectSet>> initialProjectPatternMM = new HashMap<Integer, TreeSet<RegexProjectSet>>();
-
-		// prepare sql
-		Connection c = null;
-		Statement stmt = null;
-		Class.forName("org.sqlite.JDBC");
-		c = DriverManager.getConnection(connectionString);
-		c.setAutoCommit(false);
-		stmt = c.createStatement();
 
 
-		//TODO
-		TreeSet<RegexProjectSet> corpus = null;//CorpusUtil.reloadCorpus();
-		//TODO
-		HashMap<Integer, RegexProjectSet> lookup = BehavioralCategories.getLookup("was!!!!!!!!! filtered corpus path", corpus, patternIndexMap);
 
-		String query = "select pattern, uniqueSourceID from RegexCitationMerged where (flags=0 or flags like 'arg%' or flags=128 or flags='re.DEBUG') and pattern!='arg1';";
-
-		// these are all the distinct patterns with weight
-		ResultSet rs = stmt.executeQuery(query);
-		while (rs.next()) {
-			int projectID = rs.getInt("uniqueSourceID");
-			String pattern = rs.getString("pattern");
-			Integer patternID = patternIndexMap.get(pattern);
-			if (patternID == null) {
-				continue;
-			} else {
-				RegexProjectSet regex = lookup.get(patternID);
-				TreeSet<RegexProjectSet> regexesInAPattern = initialProjectPatternMM.get(projectID);
-				if (regexesInAPattern == null) {
-					regexesInAPattern = new TreeSet<RegexProjectSet>();
-				}
-				regexesInAPattern.add(regex);
-				initialProjectPatternMM.put(projectID, regexesInAPattern);
-			}
-		}
-
-		rs.close();
-		stmt.close();
-		c.close();
-		return initialProjectPatternMM;
-	}
 
 //	public static void main(String[] args) throws ClassNotFoundException,
 //			IllegalArgumentException, SQLException, QuoteRuleException,
@@ -246,7 +170,7 @@ public class CorpusUtil {
 	private static String getCSV(TreeSet<RegexProjectSet> value,HashMap<String, Integer> patternIndexMap) {
 		StringBuilder sb = new StringBuilder();
 		for(RegexProjectSet y : value){
-			sb.append(patternIndexMap.get(y.getContent()));
+			sb.append(patternIndexMap.get(y.getPattern()));
 			sb.append(",");
 		}
 		sb.deleteCharAt(sb.lastIndexOf(","));

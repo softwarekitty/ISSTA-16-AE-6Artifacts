@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.json.JSONException;
 
-import analysis.config.Config;
+import io.config.Config;
 
 public class Step1 {
 

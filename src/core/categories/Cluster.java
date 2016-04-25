@@ -1,10 +1,10 @@
-package analysis.categories;
+package core.categories;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import analysis.build_corpus.RegexProjectSet;
+import core.corpus.RegexProjectSet;
 
 /**
  * A cluster is a set of regexes.
@@ -84,9 +84,9 @@ public class Cluster extends UnremovableTreeSet<RegexProjectSet> implements Comp
 		allProjectIDs.addAll(x.getProjectIDSet());
 		if (shortest == null) {
 			shortest = x;
-		} else if (x.getContent().length() < shortest.getContent().length()
-				|| (x.getContent().length() == shortest.getContent().length()
-						&& x.getRankableValue() > shortest.getRankableValue())) {
+		} else if (x.getPattern().length() < shortest.getPattern().length()
+				|| (x.getPattern().length() == shortest.getPattern().length()
+						&& x.getNProjects() > shortest.getNProjects())) {
 			shortest = x;
 		}
 		return addSuccess;

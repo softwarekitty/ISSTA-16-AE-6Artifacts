@@ -1,6 +1,6 @@
-package analysis.build_corpus;
+package core.corpus;
 
-import analysis.exceptions.QuoteRuleException;
+import exceptions.QuoteRuleException;
 
 
 public class PatternEscapedPair implements Comparable<PatternEscapedPair>{
@@ -9,8 +9,8 @@ public class PatternEscapedPair implements Comparable<PatternEscapedPair>{
 	
 	public PatternEscapedPair(String pattern) throws QuoteRuleException{
 		this.pattern = pattern;
-		String unquoted = RegexProjectSet.getUnquotedPythonPattern(pattern);
-		this.unescaped = RegexProjectSet.getUnescaped(unquoted);
+		String unquoted = PatternUtil.getUnquotedPythonPattern(pattern);
+		this.unescaped =  PatternUtil.getUnescaped(unquoted);
 	}
     
 	public String getPattern(){

@@ -1,4 +1,4 @@
-package analysis.metric;
+package core.metric;
 
 import java.util.HashMap;
 

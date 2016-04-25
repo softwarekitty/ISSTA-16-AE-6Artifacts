@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TreeSet;
 
-import analysis.build_corpus.RegexProjectSet;
-import analysis.metric.FeatureDictionary;
+import core.corpus.RegexProjectSet;
+import core.metric.FeatureDictionary;
 
 public class FeatureStatsTable {
 
@@ -46,14 +46,14 @@ public class FeatureStatsTable {
 			for (int i = 0; i < nFeatures; i++) {
 				int count = featureCount[i];
 				if (count > 0) {
-					featureWeight[i] += wrr.getRankableValue();
+					featureWeight[i] += wrr.getNProjects();
 
 					if (max[i] < count) {
 						max[i] = count;
 						if (i != FeatureDictionary.I_META_LITERAL &&
 							count > 100) {
 							System.out.println("100? INSPECT THIS (" +
-								fd.getCode(i) + "): " + wrr.getContent());
+								fd.getCode(i) + "): " + wrr.getPattern());
 							// IOUtil.waitNsecsOrContinue(20);
 						}
 					}
@@ -65,7 +65,7 @@ public class FeatureStatsTable {
 					}
 				}
 			}
-			totalWeight += wrr.getRankableValue();
+			totalWeight += wrr.getNProjects();
 		}
 		DecimalFormat df = new DecimalFormat("00.0");
 
@@ -107,8 +107,8 @@ public class FeatureStatsTable {
 
 			String maxOccurances = commafy(max[ID]);
 
-			String weightInt = commafy(featureDetail.getRankableValue());
-			String weightPercent = df.format(100 * (featureDetail.getRankableValue() / totalWeight));
+			String weightInt = commafy(featureDetail.getNProjectsHavingFeature());
+			String weightPercent = df.format(100 * (featureDetail.getNProjectsHavingFeature() / totalWeight));
 
 			// System.out.println("filesWithFeature[ID]: "+filesWithFeature[ID]+" totalNFiles[0]: "+totalNFiles[0]+" nProjectsPerFeature[ID]: "+nProjectsPerFeature[ID]+" totalNProjects[0]: "+totalNProjects[0]);
 
@@ -248,7 +248,7 @@ public class FeatureStatsTable {
 			for (int fCount : fc) {
 				featureCounts.add(fCount);
 			}
-			corpusMap.put(wrr.getContent(), featureCounts);
+			corpusMap.put(wrr.getPattern(), featureCounts);
 		}
 		return corpusMap;
 	}

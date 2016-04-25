@@ -1,16 +1,20 @@
 package step1;
 
-import analysis.build_corpus.RankableContent;
-
-public class FeatureDetail implements RankableContent{
+/**
+ * plain old java object, used to help build the feature table
+ * 
+ * @author cc
+ *
+ */
+public class FeatureDetail implements Comparable<FeatureDetail> {
 	private final int featureID;
 	private final int nProjects;
 	private final int nFiles;
 	private final int nPresent;
 	private final int max;
 	private final int nTokens;
-	
-	public FeatureDetail(int featureID, int nFiles, int nPresent, int nProjects, int max, int nTokens){
+
+	public FeatureDetail(int featureID, int nFiles, int nPresent, int nProjects, int max, int nTokens) {
 		this.featureID = featureID;
 		this.nProjects = nProjects;
 		this.nFiles = nFiles;
@@ -19,31 +23,21 @@ public class FeatureDetail implements RankableContent{
 		this.nTokens = nTokens;
 	}
 
-	@Override
-	public int getRankableValue() {
+	public int getNProjectsHavingFeature() {
 		return nProjects;
 	}
 
 	@Override
-	public String getContent() {
-		return "feature detail "+featureID;
-	}
-
-	@Override
-	public int compareTo(RankableContent o) {
-		if(this.getClass()!=o.getClass()){
-			throw new RuntimeException("FeatureDetail requires comparison with another FeatureDetail");
-		}
-		FeatureDetail other = (FeatureDetail)o;
-		if(this.nProjects > other.nProjects){
+	public int compareTo(FeatureDetail other) {
+		if (this.nProjects > other.nProjects) {
 			return -1;
-		}else if(this.nProjects < other.nProjects){
+		} else if (this.nProjects < other.nProjects) {
 			return 1;
-		}else if(this.featureID > other.featureID){
+		} else if (this.featureID > other.featureID) {
 			return -1;
-		}else if(this.featureID < other.featureID){
+		} else if (this.featureID < other.featureID) {
 			return 1;
-		}else{
+		} else {
 			return 0;
 		}
 	}
@@ -63,10 +57,14 @@ public class FeatureDetail implements RankableContent{
 	public int getMax() {
 		return max;
 	}
-	
+
 	public int getnTokens() {
 		return nTokens;
 	}
 
-
+	@Override
+	public String toString() {
+		return "FeatureDetail [featureID=" + featureID + ", nProjects=" + nProjects + ", nFiles=" + nFiles
+				+ ", nPresent=" + nPresent + ", max=" + max + ", nTokens=" + nTokens + "]";
+	}
 }

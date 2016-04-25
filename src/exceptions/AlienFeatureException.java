@@ -1,4 +1,4 @@
-package analysis.exceptions;
+package exceptions;
 
 public class AlienFeatureException extends RuntimeException{
 

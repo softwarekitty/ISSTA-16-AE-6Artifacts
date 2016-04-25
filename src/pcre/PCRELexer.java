@@ -1,7 +1,7 @@
 // $ANTLR 3.5.2 PCRE.g 2014-07-20 13:43:40
 // from: https://github.com/bkiers/pcre-parser
 
-package analysis.pcre;
+package pcre;
 
 import java.util.Collections;
 import java.util.Set;

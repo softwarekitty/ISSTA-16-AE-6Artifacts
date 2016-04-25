@@ -1,4 +1,4 @@
-package analysis.exceptions;
+package exceptions;
 
 public class QuoteRuleException extends Exception {
 	private static final long serialVersionUID = -2570115524759008605L;

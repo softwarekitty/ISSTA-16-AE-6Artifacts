@@ -1,6 +1,6 @@
 // from: https://github.com/bkiers/pcre-parser
 
-package analysis.pcre;
+package pcre;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;

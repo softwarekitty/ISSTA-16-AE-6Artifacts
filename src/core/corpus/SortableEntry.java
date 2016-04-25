@@ -1,4 +1,4 @@
-package analysis.build_corpus;
+package core.corpus;
 
 import java.util.TreeSet;
 

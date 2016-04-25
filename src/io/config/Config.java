@@ -1,4 +1,4 @@
-package analysis.config;
+package io.config;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

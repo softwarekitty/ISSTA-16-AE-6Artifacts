@@ -1,4 +1,4 @@
-package analysis.categories;
+package core.categories;
 
 import java.util.Collection;
 import java.util.Comparator;

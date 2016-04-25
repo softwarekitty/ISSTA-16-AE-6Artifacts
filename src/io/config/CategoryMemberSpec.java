@@ -1,4 +1,4 @@
-package analysis.config;
+package io.config;
 
 import java.util.TreeSet;
 

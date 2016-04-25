@@ -1,4 +1,4 @@
-package analysis.metric;
+package core.metric;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import analysis.exceptions.AlienFeatureException;
-import analysis.pcre.PCREParser;
+import exceptions.AlienFeatureException;
+import pcre.PCREParser;
 
 /**
  * represents the number of each feature present
@@ -30,15 +30,56 @@ public class FeatureCount {
 	private static FeatureDictionary featureDictionary = new FeatureDictionary();
 	private final int[] featureCountArray;
 
-	// requires all keys to be in the range [0,featureDictionary.getSize())
-	public FeatureCount(Map<Integer, Integer> indexCountMap) {
-		featureCountArray = new int[featureDictionary.getSize()];
-		Set<Entry<Integer, Integer>> entries = indexCountMap.entrySet();
-		for (Entry<Integer, Integer> entry : entries) {
-			featureCountArray[entry.getKey()] = entry.getValue();
+	/**
+	 * main constructor
+	 *
+	 * creates a count of features from an array
+	 * 
+	 * @param featureCountArray
+	 *            an array with length equal to the number of features in the
+	 *            featureDictionary. Each array value represents the number of
+	 *            features corresponding to the index for that feature in the
+	 *            featureDictionary.
+	 **/
+	public FeatureCount(int[] arrayCountingFeatures) {
+		int correctLength = featureDictionary.getSize();
+		int actualLength = arrayCountingFeatures.length;
+		if (actualLength != correctLength) {
+			throw new IllegalArgumentException(
+					"array must have length: " + correctLength + " but has length: " + actualLength);
 		}
+		for (int i = 0; i < correctLength; i++) {
+			int countValue = arrayCountingFeatures[i];
+			if (countValue < 0) {
+				throw new IllegalArgumentException("feature counts must be positive or zero, but at index: " + i
+						+ " the value given is: " + countValue);
+			}
+		}
+		this.featureCountArray = arrayCountingFeatures;
 	}
 
+	/**
+	 * creates a FeatureCount from a Map<Integer,Integer>
+	 * 
+	 * @param indexCountMap
+	 *            maps indexes to count values. keys outside of the correct
+	 *            range are ignored.
+	 */
+	public FeatureCount(Map<Integer, Integer> indexCountMap) {
+		this(countMapToArray(indexCountMap));
+	}
+
+	/**
+	 * constructor used to count features in Regexes
+	 * 
+	 * @param tree
+	 *            The root of the CommonTree created by the PCRE parser
+	 * @param pattern
+	 *            The pattern being parsed, only used for debugging messages
+	 * @throws AlienFeatureException
+	 *             If the tree contains a feature outside of the studied feature
+	 *             set.
+	 */
 	public FeatureCount(CommonTree tree, String pattern) throws AlienFeatureException {
 		this(treeToIndexCountMap(tree, pattern));
 	}
@@ -84,6 +125,22 @@ public class FeatureCount {
 			counts.put(key, 1);
 		}
 		return counts;
+	}
+
+	// for convenience in testing you can just add one or two features to a map
+	private static int[] countMapToArray(Map<Integer, Integer> indexCountMap) {
+		int correctLength = featureDictionary.getSize();
+		int[] array = new int[correctLength];
+		Set<Entry<Integer, Integer>> entries = indexCountMap.entrySet();
+
+		// ignores keys outside of the correct range
+		for (Entry<Integer, Integer> entry : entries) {
+			int proposedIndex = entry.getKey();
+			if (proposedIndex >= 0 && proposedIndex < correctLength) {
+				array[entry.getKey()] = entry.getValue();
+			}
+		}
+		return array;
 	}
 
 	/*
