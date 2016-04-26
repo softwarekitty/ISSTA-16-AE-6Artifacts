@@ -1,2 +1,0 @@
-The file my-directory-list.txt contains:
-

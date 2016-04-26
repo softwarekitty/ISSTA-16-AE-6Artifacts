@@ -1,0 +1,9 @@
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/Xamarin.Mac,Version=v2.0.AssemblyAttribute.cs
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/ibtool-manifests/MainMenu.nib
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/ibtool-manifests/MainWindow.nib
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/ibtool/MainMenu.nib
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/ibtool/MainWindow.nib
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/bin/Debug/generateSimilarityMatrix.exe.mdb
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/bin/Debug/generateSimilarityMatrix.exe
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/generateSimilarityMatrix.exe
+/Users/cc/home/dev/ISSTA-16-AE-6Artifacts/src/recreateArtifacts/similarityMatrix/generateSimilarityMatrix/generateSimilarityMatrix/obj/Debug/generateSimilarityMatrix.exe.mdb

@@ -1,6 +1,19 @@
 ﻿<Properties StartupItem="ConsoleApplication1.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
+    <Files>
+      <File FileName="App.config" Line="1" Column="1" />
+      <File FileName="HalfMatrix.cs" Line="1" Column="1" />
+      <File FileName="MatrixRow.cs" Line="82" Column="14" />
+      <File FileName="PostProcess.cs" Line="38" Column="64" />
+      <File FileName="PreProcess.cs" Line="15" Column="1" />
+      <File FileName="Program.cs" Line="18" Column="120" />
+      <File FileName="SimilarityMatrixBuilder.cs" Line="1" Column="1" />
+      <File FileName="TimeoutVerifier.cs" Line="1" Column="1" />
+      <File FileName="Util.cs" Line="1" Column="1" />
+      <File FileName="WholeMatrix.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

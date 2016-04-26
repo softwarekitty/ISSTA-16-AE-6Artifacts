@@ -15,6 +15,9 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             PreProcess.sayHi();
+			string executableDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location); 
+			Console.WriteLine("executableDirectory: " + executableDirectory);
+			Environment.Exit(0);
             string output_path = @"\\vmware-host\Shared Folders\Documents\SoftwareProjects\tour_de_source\csharp\";
             string filteredCorpusPath = output_path + "filteredCorpus.txt";
 
