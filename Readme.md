@@ -30,7 +30,7 @@ _____
 - ```miningDataSources``` generates the *projectInfo.tsv* file from the database.
 - ```corpus``` generates the *fullCorpus.tsv* file from the database, and error tracking files in ```patternTracking```.
 - ```featureTable``` generates *featureStats.tex* from *fullCorpus.tsv*.  This program is reusable for [appropriate inputs](#input-format).
-- ```similarityMatrix``` contains a program that transforms *filteredCorpus.tsv* and the contents of ```rextrings``` into the *similarityGraph.abc* file.
+- ```similarityMatrix``` contains a program that transforms *filteredCorpus.tsv* and the contents of ```rexStrings``` into the *similarityGraph.abc* file.
 - ```clusters``` contains a program that runs [mcl](http://micans.org/) on the similarityGraph.abc input to generate *clusters.tsv* and *patternClusterDump.tsv*.
 
 ######For all programs, inputs are taken from the ```artifacts``` folder and outputs are produced in an ```output``` folder within the folder for recreating the artifact.

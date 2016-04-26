@@ -18,27 +18,34 @@ import org.json.JSONException;
 
 import main.core.RegexProjectSet;
 import main.core.features.AlienFeatureException;
-import main.io.Config;
+import main.io.DumpUtil;
 import main.io.IOUtil;
 import main.io.LoadUtil;
 import main.parse.PythonParsingException;
 import main.parse.QuoteRuleException;
+import recreateArtifacts.PathUtil;
 
 public class Main_RecreateCorpusFromDB {
 
 	public static void main(String[] args) throws ClassNotFoundException, IllegalArgumentException, SQLException,
 			QuoteRuleException, PythonParsingException, IOException, JSONException {
-		Config config = new Config();
-		TreeSet<RegexProjectSet> corpusFromDB = initializeCorpus_and_refreshPatternTracking(config);
-		String pathToCorpusFile = new File(Config.homePath, getPathToRecreateCorpus()+"fullCorpus.txt").getPath();
+		TreeSet<RegexProjectSet> corpusFromDB = initializeCorpus_and_refreshPatternTracking(PathUtil.getConnectionString());
 		TreeSet<RegexProjectSet> corpusLoadedFromFile = LoadUtil
-				.loadRegexProjectSetInput(IOUtil.readLines(pathToCorpusFile));
+				.loadRegexProjectSetInput(IOUtil.readLines(PathUtil.pathToCorpusFile()));
 		
 		// will print "true" if the two sets are equal
 		System.out.println(corpusFromDB.equals(corpusLoadedFromFile));
+		
+		// output fullCorpus.tsv as created from the database
+		StringBuilder sb = new StringBuilder();
+		for(RegexProjectSet rps : corpusFromDB){
+			sb.append(DumpUtil.regexRow(rps)+"\n");
+		}
+		File outputFullCorpus = new File(PathUtil.getPathCorpus()+"/output/fullCorpus.tsv");
+		IOUtil.createAndWrite(outputFullCorpus, sb.toString());
 	}
 
-	public static TreeSet<RegexProjectSet> initializeCorpus_and_refreshPatternTracking(Config config)
+	public static TreeSet<RegexProjectSet> initializeCorpus_and_refreshPatternTracking(String connectionString)
 			throws ClassNotFoundException, SQLException, IllegalArgumentException, QuoteRuleException,
 			PythonParsingException {
 
@@ -47,7 +54,7 @@ public class Main_RecreateCorpusFromDB {
 		Connection c = null;
 		Statement stmt = null;
 		Class.forName("org.sqlite.JDBC");
-		c = DriverManager.getConnection(getConnectionString(config));
+		c = DriverManager.getConnection(connectionString);
 		c.setAutoCommit(false);
 		stmt = c.createStatement();
 
@@ -81,12 +88,9 @@ public class Main_RecreateCorpusFromDB {
 					patternProjectMM.put(patternEscapedPair, projectIDs);
 				}
 			} catch (QuoteRuleException e) {
-				// System.out.println("problem unquoting pattern: " + pattern);
 				errorPatternSet.add(pattern);
 			}
 		}
-		// allPatterns[0] = patternProjectMM.size();
-
 		rs.close();
 		stmt.close();
 		c.close();
@@ -118,7 +122,6 @@ public class Main_RecreateCorpusFromDB {
 						alienPatternSet.add(pattern);
 					}
 				}
-				// System.out.println(e.getMessage());
 			} catch (IllegalArgumentException e) {
 				System.out.println("initializeCorpus: Cannot parse " + pattern + " because: " + e.toString());
 				errorPatternSet.add(pattern);
@@ -129,25 +132,14 @@ public class Main_RecreateCorpusFromDB {
 			}
 		}
 
-		String pathToPatternTracking = getPathToRecreateCorpus() + "patternTracking/";
-		File errorFile = new File(Config.homePath, pathToPatternTracking + "errorPatterns.txt");
-		File alienFile = new File(Config.homePath, pathToPatternTracking + "alienPatterns.txt");
-		File unicodeFile = new File(Config.homePath, pathToPatternTracking + "unicodePatterns.txt");
-		File corpusFile = new File(Config.homePath, pathToPatternTracking + "corpusPatterns.txt");
+		String pathToPatternTracking =PathUtil.getPathCorpus() + "output/patternTracking/";
+		File errorFile = new File(pathToPatternTracking, "errorPatterns.txt");
+		File alienFile = new File(pathToPatternTracking, "alienPatterns.txt");
+		File unicodeFile = new File(pathToPatternTracking, "unicodePatterns.txt");
 		IOUtil.createAndWrite(errorFile, contentFromStringSet(errorPatternSet));
 		IOUtil.createAndWrite(alienFile, contentFromStringSet(alienPatternSet));
 		IOUtil.createAndWrite(unicodeFile, contentFromStringSet(unicodePatternSet));
-		IOUtil.createAndWrite(corpusFile, contentFromStringSet(corpusPatternSet));
 		return corpus;
-	}
-
-	private static String getConnectionString(Config config) {
-		String pathToDb = new File(Config.homePath, "artifacts/merged_report.db").getPath();
-		return "jdbc:sqlite:" + pathToDb;
-	}
-
-	private static String getPathToRecreateCorpus() {
-		return "src/recreateArtifacts/corpus/";
 	}
 
 	private static String contentFromStringSet(Collection<String> stringSet) {
