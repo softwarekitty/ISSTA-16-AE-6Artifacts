@@ -26,6 +26,7 @@ _____
 ####```src/recreateArtifacts```
 
 **Readme files containing instructions for how to reproduce the artifacts** are in the following paths:
+
 -```miningDataSources``` generates the *projectInfo.tsv* file from the database.
 -```corpus``` generates the *fullCorpus.tsv* file from the database, and error tracking files in ```patternTracking```.
 -```featureTable``` generates *featureStats.tex* from *fullCorpus.tsv*.  This program is reusable for [appropriate inputs](#input-format).
