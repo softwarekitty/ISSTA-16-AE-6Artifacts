@@ -2,8 +2,13 @@ package test.step4;
 
 import static org.junit.Assert.fail;
 
+import java.util.HashMap;
+import java.util.TreeSet;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import main.core.RegexProjectSet;
 
 public final class ClusteringControllerTest {
 
@@ -102,3 +107,40 @@ public final class ClusteringControllerTest {
 //		return clusters;
 //	}
 //}
+
+//private static String getCSV(TreeSet<RegexProjectSet> value, HashMap<String, Integer> patternIndexMap) {
+//	StringBuilder sb = new StringBuilder();
+//	for (RegexProjectSet y : value) {
+//		sb.append(patternIndexMap.get(y.getPattern()));
+//		sb.append(",");
+//	}
+//	sb.deleteCharAt(sb.lastIndexOf(","));
+//	return sb.toString();
+//}
+
+// builds the original projectIDPatternIDMultiMap
+//// public static void main(String[] args) throws ClassNotFoundException,
+//// IllegalArgumentException, SQLException, QuoteRuleException,
+//// PythonParsingException, IOException {
+//// HashMap<String, Integer> patternIndexMap =
+// BehavioralCategories.getPatternIndexMap();
+//// TreeSet<RegexProjectSet> corpus = reloadCorpus();
+////
+//// // now building a reloadable file that maps projectIDs to their
+//// // patterns' javaIDs
+//// StringBuilder sb = new StringBuilder();
+//// File dumpWithIndices = new
+// File(BehavioralCategories.homePath,"projectIDPatternIDMultiMap.txt");
+//// HashMap<Integer, TreeSet<RegexProjectSet>> initial
+// =initializeProjectPatternMM(connectionString,patternIndexMap);
+////
+//// StringBuilder contents = new StringBuilder();
+//// for (Entry<Integer, TreeSet<RegexProjectSet>> e : initial.entrySet()) {
+//// contents.append(e.getKey().toString() + "\t" +
+//// getCSV(e.getValue(),patternIndexMap) + "\n");
+//// }
+//// IOUtil.createAndWrite(dumpWithIndices, contents.toString());
+//// HashMap<Integer, TreeSet<RegexProjectSet>> reloaded =
+// reloadProjectPatternMM(corpus);
+//// System.out.println(reloaded.equals(initial));
+//// }
