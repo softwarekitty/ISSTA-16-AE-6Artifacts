@@ -1,7 +1,9 @@
 ##Recreate feature table
 
-######Notice the file featureStats.tex
+######Input: *fullCorpus.tsv*
 
-You can delete that file and it will be re-created by running Main_FeatureStatsTableBuilder.java.  Several commented-out fields can be restored, yielding different columns.
+######Output: *featureStats.tex*
 
-A properly formatted input could be exchanged for the input being used by the table builder and the relevant feature usage stats for that data would be created.  Currently, the tex file created is a standalone tex file, so that it can be built into a pdf as-is (whereas most tables are not entire documents).
+When run, this program recreates Table 4 from the paper (as a standalone tex document, as requested by reviewers).
+
+A properly formatted input could be exchanged for the input being used by the table builder and the relevant feature usage stats for that data would be created.  Several commented-out fields can be restored, displaying or hiding a few different views on the features used by an input.
