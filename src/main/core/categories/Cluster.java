@@ -38,6 +38,7 @@ public class Cluster extends UnremovableTreeSet<RegexProjectSet> implements Comp
 	public RegexProjectSet getHeaviest() {
 		if (this.isEmpty()) {
 			System.err.println("empty cluster has no heaviest regex");
+			return null;
 		}
 		return this.first();
 	}
@@ -50,6 +51,7 @@ public class Cluster extends UnremovableTreeSet<RegexProjectSet> implements Comp
 	public RegexProjectSet getShorty() {
 		if (this.isEmpty()) {
 			System.err.println("empty cluster has no shortest regex");
+			return null;
 		}
 		return shortest;
 	}
@@ -74,8 +76,7 @@ public class Cluster extends UnremovableTreeSet<RegexProjectSet> implements Comp
 		return size();
 	}
 
-	////////////// Overridden methods to maintain shortest and
-	////////////// allProjectIDs///////////////
+	// Overridden methods to maintain shortest and allProjectIDs //
 
 	// on each add, update project set and shortest
 	@Override
@@ -98,7 +99,10 @@ public class Cluster extends UnremovableTreeSet<RegexProjectSet> implements Comp
 		boolean setIsChanged = false;
 		Iterator<? extends RegexProjectSet> it = elements.iterator();
 		while (it.hasNext()) {
-			setIsChanged = setIsChanged || add(it.next());
+
+			// call next() outside of the logical OR, be safe against looping
+			RegexProjectSet current = it.next();
+			setIsChanged = add(current) || setIsChanged;
 		}
 		return setIsChanged;
 	}

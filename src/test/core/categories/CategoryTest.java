@@ -1,41 +1,103 @@
 package test.core.categories;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import main.core.RegexProjectSet;
+import main.core.categories.Category;
+import main.core.categories.Cluster;
+import main.parse.PythonParsingException;
+import main.parse.QuoteRuleException;
 
-/**
- * a Category is a set of clusters.
- * 
- * a Category also tracks all the regexes in all the clusters internally as
- * another Cluster
- * 
- * @author cc
- *
- */
-public class Category extends UnremovableTreeSet<Cluster> {
-	private static final long serialVersionUID = -217224086597240194L;
-	Cluster combinedClusters;
+public final class CategoryTest {
 
-	public Category() {
-		super();
-		combinedClusters = new Cluster();
+	static Cluster c12;
+	static Cluster c7;
+
+	@BeforeClass
+	public static void setup() throws IllegalArgumentException, QuoteRuleException, PythonParsingException {
+		c12 = new Cluster();
+		c12.addAll(CategoryTestFixtures.getCluster12_RegexProjectSets());
+		c7 = new Cluster();
+		c7.addAll(CategoryTestFixtures.getCluster7_RegexProjectSets());
 	}
 
-	@Override
-	public boolean add(Cluster c) {
-		boolean added = super.add(c);
-		combinedClusters.addAll(c);
-		return added;
+	@Test
+	public void test_init() {
+		Category c = new Category();
+		assertNotNull(c);
 	}
 
-	public int categoryTotalPatterns() {
-		return combinedClusters.getNPatterns();
+	// assumes that regexes in a cluster are not in other clusters
+	// TODO - enforce this assumption somewhere
+	@Test
+	public void test_categoryTotalPatterns() {
+		Category c = new Category();
+		assertEquals(c.categoryTotalPatterns(), 0);
+		c.add(c12);
+		assertEquals(c.categoryTotalPatterns(), c12.getNPatterns());
+		c.add(c7);
+		assertEquals(c.categoryTotalPatterns(), c12.getNPatterns() + c7.getNPatterns());
 	}
 
-	public int categoryTotalProjects() {
-		return combinedClusters.getNProjects();
+	@Test
+	public void test_categoryTotalProjects() {
+		Category c = new Category();
+		assertEquals(c.categoryTotalProjects(), 0);
+		c.add(c12);
+		assertEquals(c.categoryTotalProjects(), c12.getNProjects());
+		c.add(c7);
+		assertEquals(c.categoryTotalProjects(),
+				CategoryTestUtil.combinePIDs(Arrays.asList(c12.getAllProjectIDs(), c7.getAllProjectIDs())).size());
+	}
+	
+	@Test
+	public void test_getRepresentative_false() {
+		Category c = new Category();
+		List<RegexProjectSet> combined = new LinkedList<RegexProjectSet>();
+		
+		RegexProjectSet null_rep = c.getRepresentative(false);
+		assertNull(null_rep);
+		
+		c.add(c12);
+		combined.addAll(c12);
+		RegexProjectSet rep_from_c12 = c.getRepresentative(false);
+		RegexProjectSet rep_from_combined1 = CategoryTestUtil.determineShortest(combined);
+		assertEquals(rep_from_c12.getPattern().length(), rep_from_combined1.getPattern().length());
+		
+		c.add(c7);
+		combined.addAll(c7);
+		RegexProjectSet rep_from_c7 = c.getRepresentative(false);
+		RegexProjectSet rep_from_combined2 = CategoryTestUtil.determineShortest(combined);
+		assertEquals(rep_from_c7.getPattern().length(), rep_from_combined2.getPattern().length());
 	}
 
-	public RegexProjectSet getRepresentative(boolean getHeaviest) {
-		return getHeaviest ? combinedClusters.getHeaviest() : combinedClusters.getShorty();
+	@Test
+	public void test_getRepresentative_true() {
+		Category c = new Category();
+		List<RegexProjectSet> combined = new LinkedList<RegexProjectSet>();
+		
+		RegexProjectSet null_rep = c.getRepresentative(true);
+		assertNull(null_rep);
+		
+		c.add(c12);
+		combined.addAll(c12);
+		RegexProjectSet rep_from_c12 = c.getRepresentative(true);
+		RegexProjectSet rep_from_combined1 = CategoryTestUtil.determineHeaviest(combined);
+		assertEquals(rep_from_c12.getNProjects(), rep_from_combined1.getNProjects());
+		
+		c.add(c7);
+		combined.addAll(c7);
+		RegexProjectSet rep_from_c7 = c.getRepresentative(true);
+		RegexProjectSet rep_from_combined2 = CategoryTestUtil.determineHeaviest(combined);
+		assertEquals(rep_from_c7.getNProjects(), rep_from_combined2.getNProjects());
 	}
 }

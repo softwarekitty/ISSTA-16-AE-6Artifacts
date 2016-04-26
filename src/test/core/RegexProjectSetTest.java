@@ -18,6 +18,7 @@ import org.junit.Test;
 import main.core.RegexProjectSet;
 import main.core.features.AlienFeatureException;
 import main.core.features.FeatureCount;
+import main.core.features.FeatureCountFactory;
 import main.core.features.FeatureDictionary;
 import main.parse.PythonParsingException;
 import main.parse.QuoteRuleException;
@@ -211,7 +212,7 @@ public final class RegexProjectSetTest {
 		expectedFeatures.put(FeatureDictionary.I_META_DOT_ANY, 1);
 		expectedFeatures.put(FeatureDictionary.I_POS_START_ANCHOR, 1);
 		expectedFeatures.put(FeatureDictionary.I_POS_END_ANCHOR, 1);
-		FeatureCount expectedFeatureCount = new FeatureCount(expectedFeatures);
+		FeatureCount expectedFeatureCount = FeatureCountFactory.getFeatureCount(expectedFeatures);
 		RegexProjectSet rps = new RegexProjectSet("'^.abc(\\\\d\\\\d(\\\\d+[e-y]*z))$'", pidList.get(0));
 		assertArrayEquals(expectedFeatureCount.getFeatureCountArray(), rps.getFeatures().getFeatureCountArray());
 	}
@@ -247,5 +248,4 @@ public final class RegexProjectSetTest {
 		int i = rps1.compareTo(rps2);
 		assertEquals(i, -1);
 	}
-
 }

@@ -1,9 +1,19 @@
-package step4;
+package test.step4;
 
-public class Step4 {
+import static org.junit.Assert.fail;
 
-	public static void main(String[] args) {
-		System.out.println("oh, ok now buddy");
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+public final class Step4Test {
+
+	@BeforeClass
+	public static void setup(){
+		// TODO -setup
 	}
-	
+
+	@Test
+	public void test() {
+		fail("step4");
+	}
 }

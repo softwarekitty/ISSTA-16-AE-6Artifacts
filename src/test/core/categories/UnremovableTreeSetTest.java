@@ -1,112 +1,63 @@
-package core.categories;
+package test.core.categories;
 
-import java.util.Collection;
-import java.util.Comparator;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Iterator;
-import java.util.TreeSet;
 
-/**
- * a TreeSet where attempts to remove an element throw an exception.
- * 
- * This may be breaking the Collections contract, in spirit at least.
- * 
- * It is handy for implementing sets without complexity of removal - it's a
- * temporary measure with nice properties.
- * 
- * @author cc
- *
- * @param <E>
- */
-public class UnremovableTreeSet<E> extends TreeSet<E> {
-	private static final long serialVersionUID = -1378317793938877526L;
+import org.junit.Before;
+import org.junit.Test;
 
-	public UnremovableTreeSet() {
-		super();
-	}
+import main.core.categories.UnremovableTreeSet;
 
-	public UnremovableTreeSet(Collection<? extends E> c) {
-		super(c);
-	}
-
-	public UnremovableTreeSet(Comparator<? super E> comparator) {
-		super(comparator);
-	}
-
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException("clear not allowed");
-	}
-
-	@Override
-	public Iterator<E> iterator() {
-		Iterator<E> defaultIterator = super.iterator();
-		return new UnremovableIterator(defaultIterator);
-	}
-
-	@Override
-	public Iterator<E> descendingIterator() {
-		Iterator<E> defaultIterator = super.descendingIterator();
-		return new UnremovableIterator(defaultIterator);
-	}
-
-	@Override
-	public E pollFirst() {
-		throw new UnsupportedOperationException("removing by pollFirst not allowed");
-	}
-
-	@Override
-	public E pollLast() {
-		throw new UnsupportedOperationException("removing by pollLast not allowed");
-	}
-
-	@Override
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException("removing not allowed");
-	}
-
-	class UnremovableIterator implements Iterator<E> {
-		private Iterator<E> givenIterator;
-
-		public UnremovableIterator(Iterator<E> givenIterator) {
-			this.givenIterator = givenIterator;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return givenIterator.hasNext();
-		}
-
-		@Override
-		public E next() {
-			return givenIterator.next();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("removing by iterator not allowed");
-		}
-
-	}
-
-	// quick test
-	public static void main(String[] args) {
-		UnremovableTreeSet<Integer> noRemovesPlease = new UnremovableTreeSet<Integer>();
+public final class UnremovableTreeSetTest {
+	
+	private static UnremovableTreeSet<Integer> noRemovesPlease;
+	
+	@Before
+	public void setup(){
+		noRemovesPlease = new UnremovableTreeSet<Integer>();
 		noRemovesPlease.add(1);
 		noRemovesPlease.add(2);
 		noRemovesPlease.add(3);
+	}
 
+	@Test
+	public void test_can_foreach() {
+		int sum = 0;
 		for (Integer i : noRemovesPlease) {
-			System.out.println(i);
+			sum += i;
 		}
-
+		assertEquals(sum,6);
+	}
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void test_cannot_remove_by_iterator() {
 		Iterator<Integer> it = noRemovesPlease.iterator();
 		while (it.hasNext()) {
 			it.next();
 
 			// should throw here
 			it.remove();
-
 		}
 	}
-
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void test_cannot_remove_by_clear() {
+		noRemovesPlease.clear();
+	}
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void test_cannot_remove_by_pollFirst() {
+		noRemovesPlease.pollFirst();
+	}
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void test_cannot_remove_by_pollLast() {
+		noRemovesPlease.pollLast();
+	}
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void test_cannot_remove_by_remove() {
+		noRemovesPlease.remove(new Integer(1));
+	}
 }

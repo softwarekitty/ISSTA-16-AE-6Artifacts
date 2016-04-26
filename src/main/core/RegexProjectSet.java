@@ -3,8 +3,10 @@ package main.core;
 import java.util.TreeSet;
 
 import main.core.features.FeatureCount;
+import main.core.features.FeatureCountFactory;
 import main.parse.PatternUtil;
 import main.parse.PythonParsingException;
+import main.parse.PythonUtil;
 import main.parse.QuoteRuleException;
 
 
@@ -47,10 +49,10 @@ public final class RegexProjectSet implements Comparable<RegexProjectSet> {
 				throw new IllegalArgumentException("projectIDSet cannot be null or empty for pattern: " + pattern);
 			}
 			this.projectIDSet = projectIDSet;
-			PatternUtil.validatePythonRegex(pattern);
+			PythonUtil.validatePythonRegex(pattern);
 
 			// parse into the Commontree to count features
-			this.features = PatternUtil.getFeatureCount(pattern, rawPattern);
+			this.features = FeatureCountFactory.getFeatureCount(rawPattern);
 		}
 	}
 

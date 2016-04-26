@@ -87,26 +87,4 @@ public class UnremovableTreeSet<E> extends TreeSet<E> {
 		}
 
 	}
-
-	// quick test
-	public static void main(String[] args) {
-		UnremovableTreeSet<Integer> noRemovesPlease = new UnremovableTreeSet<Integer>();
-		noRemovesPlease.add(1);
-		noRemovesPlease.add(2);
-		noRemovesPlease.add(3);
-
-		for (Integer i : noRemovesPlease) {
-			System.out.println(i);
-		}
-
-		Iterator<Integer> it = noRemovesPlease.iterator();
-		while (it.hasNext()) {
-			it.next();
-
-			// should throw here
-			it.remove();
-
-		}
-	}
-
 }

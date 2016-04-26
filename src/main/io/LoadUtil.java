@@ -24,10 +24,9 @@ public class LoadUtil {
 	 * @throws QuoteRuleException
 	 * @throws PythonParsingException
 	 */
-	public static TreeSet<RegexProjectSet> loadRegexProjectSetInput(String inputSourcePath)
+	public static TreeSet<RegexProjectSet> loadRegexProjectSetInput(List<String> lines)
 			throws IOException, IllegalArgumentException, QuoteRuleException, PythonParsingException {
 		TreeSet<RegexProjectSet> regexProjectSetInput = new TreeSet<RegexProjectSet>();
-		List<String> lines = IOUtil.readLines(inputSourcePath);
 		for (String line : lines) {
 			String[] parts = line.split("\t");
 			String[] IDs = parts[1].split(",");
@@ -39,5 +38,4 @@ public class LoadUtil {
 		}
 		return regexProjectSetInput;
 	}
-
 }

@@ -16,6 +16,7 @@ import main.io.IOUtil;
 
 public class ClusteringController {
 	// looks like this is step 4
+	@SuppressWarnings("unused")
 	private static TreeSet<Cluster> getClustersFromFile(String fullInputFilePath, String fullOutputFilePath,
 			String mclInput, HashMap<Integer, RegexProjectSet> lookup) throws InterruptedException, IOException {
 
@@ -34,7 +35,7 @@ public class ClusteringController {
 		// this outputFile is where mcl wrote its output
 		List<String> lines = IOUtil.readLines(fullOutputFilePath);
 		int lineNumber = 0;
-		int m = 0;
+//		int m = 0;
 		// TreeSet<Integer> missingSet = new TreeSet<Integer>();
 
 		// each line of the output is a cluster
@@ -58,7 +59,7 @@ public class ClusteringController {
 					// System.out.println("missing rps at: " + indexValue +
 					// " in cluster: " + cluster.thisClusterID);
 					// missingSet.add(indexValue);
-					m++;
+//					m++;
 
 				} else {
 					boolean added = cluster.add(rps);

@@ -35,7 +35,7 @@ At this time, all patterns must be followed by a tab and at least one project ID
 
 Patterns should be valid in Python - raw Python Strings are not supported at this time.
 
-No extra lines or whitespace in input files, please.
+No extra lines or whitespace in input files, please.  No dulplicate patterns, please.
 
 The following inputs files are available in the `inputs` folder:
 

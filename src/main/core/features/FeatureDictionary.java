@@ -228,7 +228,7 @@ public class FeatureDictionary {
 		intToVerbMap.put(I_XTRA_END_SUBJECTLINE, pad("\\Z"));
 		intToVerbMap.put(I_XTRA_VERTICAL_WHITESPACE, pad("\\v"));
 		intToVerbMap.put(I_XTRA_OPTIONS, pad("(?i)CasE"));
-		intToVerbMap.put(I_XTRA_NAMED_BACKREFERENCE, pad("(P?=name)"));
+		intToVerbMap.put(I_XTRA_NAMED_BACKREFERENCE, pad("(?P=name)"));
 	}
 
 	private String pad(String s) {

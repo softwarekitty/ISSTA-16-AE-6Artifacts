@@ -1,148 +1,201 @@
-package core.categories;
+package test.core.categories;
 
-import java.util.Collection;
-import java.util.Iterator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.List;
 import java.util.TreeSet;
 
-import core.RegexProjectSet;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-/**
- * A cluster is a set of regexes.
- * 
- * A cluster tracks the set of all projects that contain at least one of the
- * regexes it contains.
- * 
- * A cluster also tracks the shortest regex it contains.
- * 
- * For simplicity, at this time removing a regex from a cluster is not allowed,
- * but can be implemented later if needed.
- * 
- * @author cc
- **/
-@SuppressWarnings("serial")
-public class Cluster extends UnremovableTreeSet<RegexProjectSet> implements Comparable<Cluster> {
-	private static int nextClusterID = 0;
-	public final int thisClusterID = nextClusterID++;
-	private TreeSet<Integer> allProjectIDs;
-	private RegexProjectSet shortest = null;
+import main.core.RegexProjectSet;
+import main.core.categories.Cluster;
+import main.parse.PythonParsingException;
+import main.parse.QuoteRuleException;
 
-	public Cluster() {
-		allProjectIDs = new TreeSet<Integer>();
+public final class ClusterTest {
+	static RegexProjectSet regex1;
+	static List<RegexProjectSet> c7List;
+	static List<RegexProjectSet> c12List;
+	static List<TreeSet<Integer>> c7PIDs;
+	static List<TreeSet<Integer>> c12PIDs;
+
+	@BeforeClass
+	public static void setup() throws IllegalArgumentException, QuoteRuleException, PythonParsingException {
+		regex1 = CategoryTestFixtures.getCluster12_RegexProjectSets().get(0);
+		c7List = CategoryTestFixtures.getCluster7_RegexProjectSets();
+		c12List = CategoryTestFixtures.getCluster12_RegexProjectSets();
+		c7PIDs = CategoryTestFixtures.getC7PIDs();
+		c12PIDs = CategoryTestFixtures.getC12PIDs();
+
 	}
 
-	/**
-	 * gets the heaviest regex in the Cluster
-	 * 
-	 * @return the heaviest regex or null if empty
-	 */
-	public RegexProjectSet getHeaviest() {
-		if (this.isEmpty()) {
-			System.err.println("empty cluster has no heaviest regex");
-		}
-		return this.first();
+	@Test
+	public void test_init() {
+		Cluster c = new Cluster();
+		assertNotNull(c);
 	}
 
-	/**
-	 * gets the shortest regex in the Cluster
-	 * 
-	 * @return the shortest regex or null if empty
-	 */
-	public RegexProjectSet getShorty() {
-		if (this.isEmpty()) {
-			System.err.println("empty cluster has no shortest regex");
-		}
-		return shortest;
+	@Test
+	public void test_getHeaviest_empty() {
+		Cluster c = new Cluster();
+		RegexProjectSet null_rps = c.getHeaviest();
+		assertNull(null_rps);
 	}
 
-	/**
-	 * gets a copy of the set of project IDs for projects that contain at least
-	 * one regex in this cluster.
-	 * 
-	 * @return project IDs for this cluster.
-	 */
-	public TreeSet<Integer> getAllProjectIDs() {
-		TreeSet<Integer> defensiveCopy = new TreeSet<Integer>();
-		defensiveCopy.addAll(allProjectIDs);
-		return defensiveCopy;
+	@Test
+	public void test_getHeaviest_hasOne() {
+		Cluster c = new Cluster();
+		c.add(regex1);
+		RegexProjectSet one_rep = c.getHeaviest();
+		assertEquals(one_rep, regex1);
 	}
 
-	public int getNProjects() {
-		return allProjectIDs.size();
+	@Test
+	public void test_getHeaviest_hasC7() {
+		Cluster c = new Cluster();
+		c.addAll(c7List);
+		RegexProjectSet rep = c.getHeaviest();
+		RegexProjectSet actualHeaviest = CategoryTestUtil.determineHeaviest(c7List);
+		assertNotNull(actualHeaviest);
+		assertEquals(rep, actualHeaviest);
 	}
 
-	public int getNPatterns() {
-		return size();
+	@Test
+	public void test_getHeaviest_hasC12() {
+		Cluster c = new Cluster();
+		c.addAll(c12List);
+		RegexProjectSet rep = c.getHeaviest();
+		RegexProjectSet actualHeaviest = CategoryTestUtil.determineHeaviest(c12List);
+		assertNotNull(actualHeaviest);
+		assertEquals(rep, actualHeaviest);
 	}
 
-	////////////// Overridden methods to maintain shortest and
-	////////////// allProjectIDs///////////////
-
-	// on each add, update project set and shortest
-	@Override
-	public boolean add(RegexProjectSet x) {
-		boolean addSuccess = super.add(x);
-		allProjectIDs.addAll(x.getProjectIDSet());
-		if (shortest == null) {
-			shortest = x;
-		} else if (x.getPattern().length() < shortest.getPattern().length()
-				|| (x.getPattern().length() == shortest.getPattern().length()
-						&& x.getNProjects() > shortest.getNProjects())) {
-			shortest = x;
-		}
-		return addSuccess;
+	@Test
+	public void test_geShortest_empty() {
+		Cluster c = new Cluster();
+		RegexProjectSet null_rps = c.getShorty();
+		assertNull(null_rps);
 	}
 
-	// uses the local add function to add all
-	@Override
-	public boolean addAll(Collection<? extends RegexProjectSet> elements) {
-		boolean setIsChanged = false;
-		Iterator<? extends RegexProjectSet> it = elements.iterator();
-		while (it.hasNext()) {
-			setIsChanged = setIsChanged || add(it.next());
-		}
-		return setIsChanged;
+	@Test
+	public void test_getShortest_hasOne() {
+		Cluster c = new Cluster();
+		c.add(regex1);
+		RegexProjectSet one_rep = c.getShorty();
+		assertEquals(one_rep, regex1);
 	}
 
-	/*
-	 * compares first by number of projects, then by number of patterns, and if
-	 * both are the same, then if both are still the same, iterates through both
-	 * same-sized sets, comparing each pair returned by the two iterators and
-	 * using any non-zero results. If all are zero, then the sets are equal.
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(Cluster other) {
-		if (other.getClass() != this.getClass()) {
-			System.err.println("class mismatch");
-			return 1;
-		}
-		Cluster cOther = (Cluster) other;
-		int nProjectsThis = this.getNProjects();
-		int nProjectsOther = cOther.getNProjects();
-		// higher weight is earlier
-		if (nProjectsThis > nProjectsOther) {
-			return -1;
-		} else if (nProjectsThis < nProjectsOther) {
-			return 1;
-		} else {
-			if (this.size() > cOther.size()) {
-				return -1;
-			} else if (this.size() < cOther.size()) {
-				return 1;
-			} else {
-				Iterator<RegexProjectSet> it1 = this.iterator();
-				Iterator<RegexProjectSet> it2 = cOther.iterator();
-				while (it1.hasNext()) {
-					RegexProjectSet wrr1 = it1.next();
-					RegexProjectSet wrr2 = it2.next();
-					int ct = wrr1.compareTo(wrr2);
-					if (ct != 0) {
-						return ct;
-					}
-				}
-				return 0;
-			}
-		}
+	@Test
+	public void test_getShortest_hasC7() {
+		Cluster c = new Cluster();
+		c.addAll(c7List);
+		RegexProjectSet rep = c.getShorty();
+		RegexProjectSet actualShortest = CategoryTestUtil.determineShortest(c7List);
+		assertNotNull(actualShortest);
+		assertEquals(rep, actualShortest);
+	}
+
+	@Test
+	public void test_getShortest_hasC12() {
+		Cluster c = new Cluster();
+		c.addAll(c12List);
+		RegexProjectSet rep = c.getShorty();
+		RegexProjectSet actualShortest = CategoryTestUtil.determineShortest(c12List);
+		assertNotNull(actualShortest);
+		assertEquals(rep, actualShortest);
+	}
+
+	@Test
+	public void test_getProjectIDs_empty() {
+		Cluster c = new Cluster();
+		TreeSet<Integer> empty_PIDs = c.getAllProjectIDs();
+		TreeSet<Integer> newTreeSet = new TreeSet<Integer>();
+		assertEquals(empty_PIDs, newTreeSet);
+	}
+
+	@Test
+	public void test_getProjectIDs_hasOne() {
+		Cluster c = new Cluster();
+		c.add(regex1);
+		TreeSet<Integer> regex1_PIDs = regex1.getProjectIDSet();
+		TreeSet<Integer> combined = c.getAllProjectIDs();
+		assertEquals(combined, regex1_PIDs);
+	}
+
+	@Test
+	public void test_getProjectIDs_hasC7() {
+		Cluster c = new Cluster();
+		c.addAll(c7List);
+		TreeSet<Integer> actual_c7PIDs_combined = CategoryTestUtil.combinePIDs(c7PIDs);
+		TreeSet<Integer> combined = c.getAllProjectIDs();
+		assertEquals(actual_c7PIDs_combined, combined);
+	}
+
+	@Test
+	public void test_getProjectIDs_hasC12() {
+		Cluster c = new Cluster();
+		c.addAll(c12List);
+		TreeSet<Integer> actual_c12PIDs_combined = CategoryTestUtil.combinePIDs(c12PIDs);
+		TreeSet<Integer> combined = c.getAllProjectIDs();
+		assertEquals(actual_c12PIDs_combined, combined);
+	}
+
+	@Test
+	public void test_getNProjects_empty() {
+		Cluster c = new Cluster();
+		assertEquals(c.getNProjects(), 0);
+	}
+
+	@Test
+	public void test_getNProjects_hasOne() {
+		Cluster c = new Cluster();
+		c.add(regex1);
+		assertEquals(c.getNProjects(), regex1.getNProjects());
+	}
+
+	@Test
+	public void test_getNProjects_hasC7() {
+		Cluster c = new Cluster();
+		c.addAll(c7List);
+		TreeSet<Integer> actual_c7PIDs_combined = CategoryTestUtil.combinePIDs(c7PIDs);
+		assertEquals(c.getNProjects(), actual_c7PIDs_combined.size());
+	}
+
+	@Test
+	public void test_getNProjects_hasC12() {
+		Cluster c = new Cluster();
+		c.addAll(c12List);
+		TreeSet<Integer> actual_c12PIDs_combined = CategoryTestUtil.combinePIDs(c12PIDs);
+		assertEquals(c.getNProjects(), actual_c12PIDs_combined.size());
+	}
+
+	@Test
+	public void test_getNPatterns_empty() {
+		Cluster c = new Cluster();
+		assertEquals(c.getNPatterns(), 0);
+	}
+
+	@Test
+	public void test_getNPatterns_hasOne() {
+		Cluster c = new Cluster();
+		c.add(regex1);
+		assertEquals(c.getNPatterns(), 1);
+	}
+
+	@Test
+	public void test_getNPatterns_hasC7() {
+		Cluster c = new Cluster();
+		c.addAll(c7List);
+		assertEquals(c.getNPatterns(), c7List.size());
+	}
+
+	@Test
+	public void test_getNPatterns_hasC12() {
+		Cluster c = new Cluster();
+		c.addAll(c12List);
+		assertEquals(c.getNPatterns(), c12List.size());
 	}
 }
