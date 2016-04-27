@@ -40,4 +40,8 @@ public class RegexGroup {
 	public List<Integer> getKeyList() {
 		return keyList;
 	}
+	
+	public int size(){
+		return keyList.size();
+	}
 }

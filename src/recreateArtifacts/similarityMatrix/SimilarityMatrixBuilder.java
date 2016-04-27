@@ -19,29 +19,13 @@ public class SimilarityMatrixBuilder {
 	public static double verifiedTimeoutFlag = 0.00000701702703;
 	public static double belowMinFlag = 0.00000307207107;
 
-	public static void createBatchOfRows(Integer batchSize, String allRowsBase, String filteredCorpusPath, String rexStringsBase, double minSimilarity, Integer nMatchStrings){
-
-        // create regexMap and keyList
-        HashMap<Integer, Regex> regexMap = new HashMap<Integer, Regex>();
-        
-        Pattern numberFinder = Pattern.compile("(\\d+)\\t(.*)");
-        List<String> lines = IOUtil.readLines(filteredCorpusPath);
-        for(String line:lines){
-        	Matcher lineMatcher = numberFinder.matcher(line);
-        	if(lineMatcher.find()){
-        		int index = Integer.parseInt(lineMatcher.group(1));
-        		String pattern = lineMatcher.group(2);
-                regexMap.put(index, new Regex(pattern));
-        	}
-        }
-        List<Integer> keyList = new LinkedList<Integer>();
-        keyList.addAll(regexMap.keySet());
-        Collections.sort(keyList);
-
+	public static void createBatchOfRows(Integer batchSize, String allRowsBase, RegexGroup group, String rexStringsBase, double minSimilarity, Integer nMatchStrings){
+		int nRows = group.getKeyList().size();
+		
         //create some seeds so that different runs on the same data are the same
         Random gen = new Random(Integer.MAX_VALUE);
-        int[] differentSeeds = new int[keyList.size()];
-        for(int q=0;q<keyList.size();q++){
+        int[] differentSeeds = new int[nRows];
+        for(int q=0;q<nRows;q++){
         	differentSeeds[q] = gen.nextInt(Integer.MAX_VALUE);
         }
        
@@ -50,16 +34,16 @@ public class SimilarityMatrixBuilder {
         options.MaxDegreeOfParallelism = 4;
 
         //these do not have to be sequential or in order.
-        Integer[] batchIndices = getBatchOfIndices(allRowsBase,keyList.Count, batchSize);
+        Integer[] batchIndices = getBatchOfIndices(allRowsBase,nRows, batchSize);
         Integer jitty = 0;
-        Parallel.For(0, batchIndices.Length, options, i => evaluateOneRow(i, batchIndices,differentSeeds[i], rexStringsBase, regexMap, keyList, minSimilarity,allRowsBase, nMatchStrings));
+        Parallel.For(0, batchIndices.length, options, i => evaluateOneRow(i, batchIndices,differentSeeds[i], rexStringsBase, group, minSimilarity,allRowsBase, nMatchStrings));
     }
 
 	static void evaluateOneRow(Integer batchArrayIndex, Integer[] batchIndices, Integer differentSeed,
-			String rexStringsBase, HashMap<Integer, Regex> regexMap, List<Integer> keyList, double minSimilarity,
+			String rexStringsBase, RegexGroup group, double minSimilarity,
 			String rowFileBase, Integer nMatchStrings) throws Exception {
 		Integer rowIndex = batchIndices[batchArrayIndex];
-		Integer nKeys = keyList.size();
+		Integer nKeys = group.getKeyList().size();
 		double[] rowArray = new double[nKeys];
 		for (Integer rowArrayIndex = 0; rowArrayIndex < nKeys; rowArrayIndex++) {
 			rowArray[rowArrayIndex] = initializedFlag;
@@ -85,13 +69,13 @@ public class SimilarityMatrixBuilder {
 		for (Integer chunkIndex = 0; chunkIndex < nChunks; chunkIndex++) {
 			Integer chunkStart = chunkIndex * chunkSize;
 			Integer chunkStop = chunkStart + chunkSize;
-			processChunk(rowIndex, rowArray, chunkStart, chunkStop, matchingStrings_outer, regexMap, maxErrors, keyList,
+			processChunk(rowIndex, rowArray, chunkStart, chunkStop, matchingStrings_outer, maxErrors, group,
 					nTimeouts);
 		}
 		if (remainder > 0) {
 			Integer chunkStart = nChunks * chunkSize;
 			Integer chunkStop = chunkStart + remainder;
-			processChunk(rowIndex, rowArray, chunkStart, chunkStop, matchingStrings_outer, regexMap, maxErrors, keyList,
+			processChunk(rowIndex, rowArray, chunkStart, chunkStop, matchingStrings_outer, maxErrors, group,
 					nTimeouts);
 		}
 		MatrixRow mr = new MatrixRow(rowIndex, rowArray, nKeys);
@@ -100,7 +84,7 @@ public class SimilarityMatrixBuilder {
 				+ matchingStrings_outer.size());
 	}
 
-	static void processChunk(Integer rowIndex,double[] rowArray, Integer chunkStart, Integer chunkStop, HashSet<String> matchingStrings_outer, HashMap<Integer, Regex> regexMap,Integer maxErrors, List<Integer> keyList, Integer[] nTimeouts){
+	static void processChunk(Integer rowIndex,double[] rowArray, Integer chunkStart, Integer chunkStop, HashSet<String> matchingStrings_outer, Integer maxErrors, RegexGroup group, Integer[] nTimeouts){
 
         // rarely, a pathological regex can hang for a very long time.
         // but most of these finish within 120 microseconds (rate: 8300/sec)
@@ -111,8 +95,8 @@ public class SimilarityMatrixBuilder {
         for (Integer keyIndex = chunkStart; keyIndex < chunkStop; keyIndex++){
 
             //get the regex mapped to this cell within the chunk
-            Integer innerKey = keyList.get(keyIndex);
-            Regex regex_inner = regexMap.get(innerKey);
+            Integer innerKey = group.getKeyList().get(keyIndex);
+            Regex regex_inner = group.getRegexMap().get(innerKey);
 
             //wow, strange it looks like the keyIndex++
             //triggered at the end of the loop passes Integero the 

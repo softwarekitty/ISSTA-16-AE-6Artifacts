@@ -1,5 +1,6 @@
 package recreateArtifacts.similarityMatrix;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +11,31 @@ import java.util.List;
 import main.io.IOUtil;
 
 public class RowUtil {
+
+	public static int nRowsExist(String allRowsBase, int nRows) {
+
+		// create all the bucket directories if this is the first time here
+		List<String> bucketList = RowUtil.getBucketList(nRows);
+		for (String bucketName : bucketList) {
+			String rowBucketDirectory = allRowsBase + bucketName;
+			File rowBucketFile = new File(rowBucketDirectory);
+			if (!rowBucketFile.exists()) {
+				rowBucketFile.mkdirs();
+			}
+		}
+
+		// count the times a file exists for a row in its bucket
+		int numRowsExist = 0;
+		for (int rowIndex = 0; rowIndex < nRows; rowIndex++) {
+
+			String rowFilePath = RowUtil.getRowFilePath(allRowsBase, nRows, rowIndex);
+			File rowFile = new File(rowFilePath);
+			if (rowFile.exists()) {
+				numRowsExist++;
+			}
+		}
+		return numRowsExist;
+	}
 
 	public static List<String> getBucketList(int nKeys) {
 		List<String> bucketNames = new LinkedList<String>();
@@ -127,30 +153,9 @@ public class RowUtil {
 		 */
 		double partMaxError = 1 - minSimilarity;
 		double maxErrorsDouble = nMatchingStrings * partMaxError;
-		
+
 		// this may round down, so add one back just to be sure
-		int nMaxErrors = (int)maxErrorsDouble + 1;
+		int nMaxErrors = (int) maxErrorsDouble + 1;
 		return nMaxErrors;
 	}
-	
-	public static List<Integer> getKeyList(String filteredCorpusPath)
-    {
-        List<Integer> keyList = new List<Integer>();
-        Regex numberFinder = new Regex(@"(\d+)\t(.*)");
-        using (StreamReader r = new StreamReader(filteredCorpusPath))
-        {
-            String line = null;
-            while ((line = r.ReadLine()) != null)
-            {
-                Match lineMatch = numberFinder.Match(line);
-                if (lineMatch.Success)
-                {
-                    Integer index = Integer.Parse(lineMatch.Groups[1].Value);
-                    keyList.Add(index);
-                }
-            }
-        }
-        keyList.Sort();
-        return keyList;
-    }
 }

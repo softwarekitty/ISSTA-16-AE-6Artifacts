@@ -12,42 +12,26 @@ import java.util.regex.Pattern;
 import main.io.IOUtil;
 
 public class TimeoutVerifier {
-	public static void verifyRows(String allRowsBase, Integer nRows, double minSimilarity, String filteredCorpusPath,
+	public static void verifyRows(String allRowsBase,double minSimilarity, RegexGroup group,
 			Integer nRunnawaysWithoutStress, Integer batchSize, String rexStringsBase, Integer nMatchingStrings) throws IOException {
 //		domain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromMilliseconds(1200));
 
-		// create regexMap and keyList
-		HashMap<Integer, Regex> regexMap = new HashMap<Integer, Regex>();
-
-		Pattern numberFinder = Pattern.compile("(\\d+)\\t(.*)");
-		List<String> lines = IOUtil.readLines(filteredCorpusPath);
-		for (String line : lines) {
-			Matcher lineMatcher = numberFinder.matcher(line);
-			if (lineMatcher.find()) {
-				int index = Integer.parseInt(lineMatcher.group(1));
-				String pattern = lineMatcher.group(2);
-				regexMap.put(index, new Regex(pattern));
-			}
-		}
-		List<Integer> keyList = new LinkedList<Integer>();
-		keyList.addAll(regexMap.keySet());
-		Collections.sort(keyList);
 		Integer[] stressCounter = { 0 };
 
-		Integer[] indicesWithTimeouts = getBatchOfIndicesWithTimeouts(allRowsBase, nRows, batchSize);
+		Integer[] indicesWithTimeouts = getBatchOfIndicesWithTimeouts(allRowsBase, group.size(), batchSize);
 		for (Integer indexKey = 0; indexKey < indicesWithTimeouts.length; indexKey++) {
 			if (stressCounter[0] >= nRunnawaysWithoutStress) {
 				break;
 			}
-			validateRow(indicesWithTimeouts[indexKey], nRows, keyList, regexMap, minSimilarity, allRowsBase,
+			validateRow(indicesWithTimeouts[indexKey], group, minSimilarity, allRowsBase,
 					rexStringsBase, stressCounter, nMatchingStrings);
 		}
 	}
 
-	private static void validateRow(Integer rowIndex, Integer nRows, List<Integer> keyList, HashMap<Integer, Regex> regexMap, double minSimilarity, String allRowsBase, String rexStringsBase, Integer[] stressCounter, Integer nMatchingStrings){
+	private static void validateRow(Integer rowIndex, RegexGroup group, double minSimilarity, String allRowsBase, String rexStringsBase, Integer[] stressCounter, Integer nMatchingStrings){
 
-        MatrixRow mr = new MatrixRow(allRowsBase, rowIndex, nRows);
-        HashSet<String> matchingStrings_outer = RowUtil.getRexGeneratedStrings(rowIndex, nRows, rexStringsBase, nMatchingStrings);
+        MatrixRow mr = new MatrixRow(allRowsBase, rowIndex, group.size());
+        HashSet<String> matchingStrings_outer = RowUtil.getRexGeneratedStrings(rowIndex, group.size(), rexStringsBase, nMatchingStrings);
         Integer maxErrors = RowUtil.getMaxErrors(minSimilarity,nMatchingStrings);
         double[] values = mr.getValues();
         Integer nTimeouts = 0;
@@ -57,8 +41,8 @@ public class TimeoutVerifier {
         for (Integer j = 0; j < values.length; j++){
             //remember this keyList was built from the filteredCorpus,
             //with keys added in order
-            Integer innerKey = keyList.get(j);
-            Regex regex_inner = regexMap.get(innerKey);
+            Integer innerKey = group.getKeyList().get(j);
+            Regex regex_inner = group.getRegexMap().get(innerKey);
             double similarity = values[j];
 
             // note that when reading the row from file, everything that
@@ -79,13 +63,13 @@ public class TimeoutVerifier {
             }
         }
         mr.writeRowToFile(allRowsBase,minSimilarity);
-        System.out.println("verified i: " + rowIndex + "/" + nRows + " nTimeouts: " + nTimeouts + " nMatchStrings:" + matchingStrings_outer.size();
+        System.out.println("verified i: " + rowIndex + "/" + group.size() + " nTimeouts: " + nTimeouts + " nMatchStrings:" + matchingStrings_outer.size());
     }
 
 	static void validateCell(Integer j, double[] row, HashSet<String> matchingStrings_outer, Regex regex_inner,
 			Integer maxErrors) {
-		AppDomain domain = AppDomain.CurrentDomain;
-		domain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromMilliseconds(1200));
+//		AppDomain domain = AppDomain.CurrentDomain;
+//		domain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromMilliseconds(1200));
 
 		double nMatchingStrings = matchingStrings_outer.size();
 		Integer alsoMatchingCounter = 0;
@@ -97,9 +81,7 @@ public class TimeoutVerifier {
 				row[j] = SimilarityMatrixBuilder.belowMinFlag;
 				return;
 			}
-
-			Match attemptMatch = regex_inner.Match(matchingString);
-			if (attemptMatch.Success) {
+			if (regex_inner.match(matchingString)) {
 				alsoMatchingCounter++;
 			} else {
 				errorCounter++;
@@ -109,19 +91,18 @@ public class TimeoutVerifier {
 		row[j] = similarity;
 	}
 
-	private static Integer[] getBatchOfIndicesWithTimeouts(String allRowsBase, Integer nKeys, Integer batchSize) {
+	private static Integer[] getBatchOfIndicesWithTimeouts(String allRowsBase, Integer nKeys, Integer batchSize) throws IOException {
 		Integer nAdded = 0;
 		List<Integer> indices = new LinkedList<Integer>();
 		for (Integer rowIndex = 0; rowIndex < nKeys; rowIndex++) {
-			String rowPath = RowUtil.getRowFilePath(allRowsBase, nKeys, rowIndex);
 			if (RowUtil.hasUnverifiedTimeouts(allRowsBase, nKeys, rowIndex)) {
 				indices.add(rowIndex);
 				nAdded++;
 			}
 			if (nAdded >= batchSize) {
-				return indices.toArray();
+				return indices.toArray(new Integer[indices.size()]);
 			}
 		}
-		return indices.ToArray();
+		return indices.toArray(new Integer[indices.size()]);
 	}
 }
