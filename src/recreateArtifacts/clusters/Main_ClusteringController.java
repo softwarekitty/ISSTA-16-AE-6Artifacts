@@ -5,17 +5,18 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import main.core.RegexProjectSet;
 import main.core.categories.Cluster;
 import main.io.DumpUtil;
 import main.io.IOUtil;
 import main.io.LoadUtil;
+import main.parse.PythonParsingException;
+import main.parse.QuoteRuleException;
 import recreateArtifacts.PathUtil;
 
 //######Input: *similarityGraph.abc*
@@ -24,7 +25,8 @@ import recreateArtifacts.PathUtil;
 
 public class Main_ClusteringController {
 
-	public static void main(String[] args) throws InterruptedException, IOException {
+	public static void main(String[] args) throws InterruptedException, IOException, IllegalArgumentException,
+			QuoteRuleException, PythonParsingException {
 		TreeSet<RegexProjectSet> corpus = LoadUtil
 				.loadRegexProjectSetInput(IOUtil.readLines(PathUtil.pathToCorpusFile()));
 
@@ -32,7 +34,7 @@ public class Main_ClusteringController {
 		String mclOutputPath = PathUtil.getPathCluster() + "output/clusters.tsv";
 		String mclInput = getMCLInput(mclInputPath, mclOutputPath);
 
-		HashMap<Integer, RegexProjectSet> lookup = getLookup(PathUtil.pathToFilteredCorpus(), corpus, patternIndexMap);
+		HashMap<Integer, RegexProjectSet> lookup = getLookup(corpus, getPatternIndexMap(corpus));
 		TreeSet<Cluster> clusters = getClustersFromGraph(mclOutputPath, mclInput, lookup);
 
 		String patternClusterDumpPath = PathUtil.getPathCluster() + "output/patternClusterDump.tsv";
@@ -123,8 +125,8 @@ public class Main_ClusteringController {
 		return clusters;
 	}
 
-	public static HashMap<Integer, RegexProjectSet> getLookup(String filtered_corpus_path,
-			TreeSet<RegexProjectSet> corpus, HashMap<String, Integer> patternIndexMap) {
+	public static HashMap<Integer, RegexProjectSet> getLookup(TreeSet<RegexProjectSet> corpus,
+			HashMap<String, Integer> patternIndexMap) {
 		HashMap<Integer, RegexProjectSet> lookup = new HashMap<Integer, RegexProjectSet>();
 
 		for (RegexProjectSet regex : corpus) {
@@ -133,5 +135,30 @@ public class Main_ClusteringController {
 			lookup.put(javaIndex, regex);
 		}
 		return lookup;
+	}
+
+	private static HashMap<String, Integer> getPatternIndexMap(TreeSet<RegexProjectSet> corpus) {
+		/**
+		 * define a comparator that orders the regexes by rawPattern, as this
+		 * was the order used before exporting to Rex, and is needed to map the
+		 * indices from clusters back to patterns
+		 * 
+		 * @author cc
+		 *
+		 */
+		class PatternComparator implements Comparator<RegexProjectSet> {
+			@Override
+			public int compare(RegexProjectSet r1, RegexProjectSet r2) {
+				return r1.getRawPattern().compareTo(r2.getRawPattern());
+			}
+		}
+		TreeSet<RegexProjectSet> rawPatternOrderedCorpus = new TreeSet<RegexProjectSet>(new PatternComparator());
+		rawPatternOrderedCorpus.addAll(corpus);
+		HashMap<String, Integer> patternIndexMap = new HashMap<String, Integer>();
+		int i = 0;
+		for (RegexProjectSet rps : rawPatternOrderedCorpus) {
+			patternIndexMap.put(rps.getPattern(), i++);
+		}
+		return patternIndexMap;
 	}
 }
