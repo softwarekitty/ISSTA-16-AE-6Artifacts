@@ -118,4 +118,39 @@ public class RowUtil {
 		generatedStrings.addAll(Arrays.asList(testStrings));
 		return generatedStrings;
 	}
+
+	public static Integer getMaxErrors(double minSimilarity, Integer nMatchingStrings) {
+		/**
+		 * this is a simple calculation, but an important number, if we want to
+		 * skip doing n calculations and claim that it is because that row would
+		 * have turned out to be below the minimum similarity anyway.
+		 */
+		double partMaxError = 1 - minSimilarity;
+		double maxErrorsDouble = nMatchingStrings * partMaxError;
+		
+		// this may round down, so add one back just to be sure
+		int nMaxErrors = (int)maxErrorsDouble + 1;
+		return nMaxErrors;
+	}
+	
+	public static List<Integer> getKeyList(String filteredCorpusPath)
+    {
+        List<Integer> keyList = new List<Integer>();
+        Regex numberFinder = new Regex(@"(\d+)\t(.*)");
+        using (StreamReader r = new StreamReader(filteredCorpusPath))
+        {
+            String line = null;
+            while ((line = r.ReadLine()) != null)
+            {
+                Match lineMatch = numberFinder.Match(line);
+                if (lineMatch.Success)
+                {
+                    Integer index = Integer.Parse(lineMatch.Groups[1].Value);
+                    keyList.Add(index);
+                }
+            }
+        }
+        keyList.Sort();
+        return keyList;
+    }
 }
