@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
+import recreateArtifacts.similarityMatrix.threading.Regex;
 
 public class RegexGroup {
 	private final HashMap<Integer,Regex> regexMap;

@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix;
+package recreateArtifacts.similarityMatrix.threading;
 
 import java.io.File;
 import java.util.Collections;
@@ -11,6 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
+import recreateArtifacts.similarityMatrix.MatrixRow;
+import recreateArtifacts.similarityMatrix.RegexGroup;
+import recreateArtifacts.similarityMatrix.RowUtil;
 
 public class SimilarityMatrixBuilder {
 	public static double initializedFlag = 0.00000987654321;

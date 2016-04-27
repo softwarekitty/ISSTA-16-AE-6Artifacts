@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 import recreateArtifacts.PathUtil;
+import recreateArtifacts.similarityMatrix.threading.SimilarityMatrixBuilder;
+import recreateArtifacts.similarityMatrix.threading.TimeoutVerifier;
 
 public class Main_MatrixBuilder {
 

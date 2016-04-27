@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
+import recreateArtifacts.similarityMatrix.threading.SimilarityMatrixBuilder;
 
 public class MatrixRow {
 

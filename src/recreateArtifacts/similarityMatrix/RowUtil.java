@@ -116,19 +116,23 @@ public class RowUtil {
 
 	public static boolean hasUnverifiedTimeouts(String allRowsBase, int nRows, int rowIndex) throws IOException {
 		String rowFilePath = getRowFilePath(allRowsBase, nRows, rowIndex);
-
-		List<String> lines = IOUtil.readLines(rowFilePath);
-		String line1 = lines.get(0);
-		String line2 = lines.get(1);
-		String line3 = lines.get(2);
-		if (line1 == null || line2 == null || line3 == null) {
-			System.err.println("missing line in path: " + rowFilePath);
-			System.exit(1);
-		} else if (!(line1.equals("initializedList: []") && line2.equals("incompleteList: []")
-				&& line3.equals("cancelledList: []"))) {
-			return true;
+		File rowFile = new File(rowFilePath);
+		if (!rowFile.exists()) {
+			return false;
+		} else {
+			List<String> lines = IOUtil.readLines(rowFilePath);
+			String line1 = lines.get(0);
+			String line2 = lines.get(1);
+			String line3 = lines.get(2);
+			if (line1 == null || line2 == null || line3 == null) {
+				System.err.println("missing line in path: " + rowFilePath);
+				System.exit(1);
+			} else if (!(line1.equals("initializedList: []") && line2.equals("incompleteList: []")
+					&& line3.equals("cancelledList: []"))) {
+				return true;
+			}
+			return false;
 		}
-		return false;
 	}
 
 	public static HashSet<String> getRexGeneratedStrings(int rowIndex, int nKeys, String rexStringsBase,
@@ -157,5 +161,9 @@ public class RowUtil {
 		// this may round down, so add one back just to be sure
 		int nMaxErrors = (int) maxErrorsDouble + 1;
 		return nMaxErrors;
+	}
+
+	public static boolean rowExists(String allRowsBase, Integer nKeys, Integer rowIndex) {
+		return new File(getRowFilePath(allRowsBase, nKeys, rowIndex)).exists();
 	}
 }

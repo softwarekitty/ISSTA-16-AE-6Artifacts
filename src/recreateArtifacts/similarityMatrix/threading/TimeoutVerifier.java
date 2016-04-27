@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix;
+package recreateArtifacts.similarityMatrix.threading;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -10,6 +10,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
+import recreateArtifacts.similarityMatrix.MatrixRow;
+import recreateArtifacts.similarityMatrix.RegexGroup;
+import recreateArtifacts.similarityMatrix.RowUtil;
 
 public class TimeoutVerifier {
 	public static void verifyRows(String allRowsBase,double minSimilarity, RegexGroup group,
