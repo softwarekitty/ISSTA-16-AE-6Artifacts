@@ -4,4 +4,6 @@
 
 ######Output: *similarityGraph.abc*
 
+##Program summary
+
 This program is in progress at this time.
