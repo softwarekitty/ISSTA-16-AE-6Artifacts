@@ -6,4 +6,4 @@
 
 ##Program summary
 
-This program is in progress at this time - please check back in a few hours.
+This program is in progress at this time, but is nearly complete - please check back in about 20 minutes.

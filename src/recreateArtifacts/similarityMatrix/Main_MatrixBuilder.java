@@ -7,7 +7,7 @@ import recreateArtifacts.similarityMatrix.threading.RegexRunner;
 
 public class Main_MatrixBuilder {
 
-	static void Main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		System.out.println("hello from MatrixBuilder");
 		String allRowsBase = PathUtil.allRowsBase();
 		String rexStringsBase = PathUtil.rexStringsBase();
