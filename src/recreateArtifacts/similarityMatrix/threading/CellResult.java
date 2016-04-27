@@ -2,19 +2,26 @@ package recreateArtifacts.similarityMatrix.threading;
 
 public class CellResult {
 
+	private final double resultValue;
+	private final int colIndex;
+	private final int rowIndex;
+
+	public CellResult(double resultValue, int colIndex, int rowIndex) {
+		this.resultValue = resultValue;
+		this.colIndex = colIndex;
+		this.rowIndex = rowIndex;
+	}
+
 	public double getValue() {
-		// TODO Auto-generated method stub
-		return 0;
+		return resultValue;
 	}
 
 	public int getColIndex() {
-		// TODO Auto-generated method stub
-		return 0;
+		return colIndex;
 	}
-	
+
 	public int getRowIndex() {
-		// TODO Auto-generated method stub
-		return 0;
+		return rowIndex;
 	}
 
 }

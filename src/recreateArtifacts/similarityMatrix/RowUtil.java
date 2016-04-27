@@ -156,20 +156,6 @@ public class RowUtil {
 		return testStrings;
 	}
 
-	public static Integer getMaxErrors(double minSimilarity, Integer nMatchingStrings) {
-		/**
-		 * this is a simple calculation, but an important number, if we want to
-		 * skip doing n calculations and claim that it is because that row would
-		 * have turned out to be below the minimum similarity anyway.
-		 */
-		double partMaxError = 1 - minSimilarity;
-		double maxErrorsDouble = nMatchingStrings * partMaxError;
-
-		// this may round down, so add one back just to be sure
-		int nMaxErrors = (int) maxErrorsDouble + 1;
-		return nMaxErrors;
-	}
-
 	public static boolean rowExists(String allRowsBase, Integer nKeys, Integer rowIndex) {
 		return new File(getRowFilePath(allRowsBase, nKeys, rowIndex)).exists();
 	}

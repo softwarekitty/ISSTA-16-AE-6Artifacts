@@ -2,14 +2,21 @@ package recreateArtifacts.similarityMatrix.threading;
 
 public class RowResult {
 
+	private final double[] rowArray;
+	private final int rowIndex;
+
+	public RowResult(double[] rowArray, int rowIndex) {
+		super();
+		this.rowArray = rowArray;
+		this.rowIndex = rowIndex;
+	}
+
 	public double[] getRowArray() {
-		// TODO Auto-generated method stub
-		return null;
+		return rowArray;
 	}
 
 	public int getRowIndex() {
-		// TODO Auto-generated method stub
-		return 0;
+		return rowIndex;
 	}
 
 }

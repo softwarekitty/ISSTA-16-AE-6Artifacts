@@ -35,7 +35,7 @@ public class TimeoutVerifier {
 
         MatrixRow mr = new MatrixRow(allRowsBase, rowIndex, group.size());
         HashSet<String> matchingStrings_outer = RowUtil.getRexGeneratedStrings(rowIndex, group.size(), rexStringsBase, nMatchingStrings);
-        Integer maxErrors = RowUtil.getMaxErrors(minSimilarity,nMatchingStrings);
+        Integer maxErrors = RowUtil.getMaxNonMatches(minSimilarity,nMatchingStrings);
         double[] values = mr.getValues();
         Integer nTimeouts = 0;
 
