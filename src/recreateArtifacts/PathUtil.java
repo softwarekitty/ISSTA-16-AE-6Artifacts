@@ -16,7 +16,7 @@ public class PathUtil {
 	}
 	
 	public static String getPathCluster() {
-		return homePath + getRelPath()+"cluster/";
+		return homePath + getRelPath()+"clusters/";
 	}
 
 	public static String getPathCorpus() {

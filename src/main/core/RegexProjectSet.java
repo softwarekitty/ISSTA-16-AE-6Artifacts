@@ -4,12 +4,11 @@ import java.util.TreeSet;
 
 import main.core.features.FeatureCount;
 import main.core.features.FeatureCountFactory;
+import main.io.DumpUtil;
 import main.parse.PatternUtil;
 import main.parse.PythonParsingException;
 import main.parse.PythonUtil;
 import main.parse.QuoteRuleException;
-
-
 
 /**
  * a RegexProjectSet is a pattern String and a set of project IDs.
@@ -138,10 +137,19 @@ public final class RegexProjectSet implements Comparable<RegexProjectSet> {
 
 	@Override
 	public int hashCode() {
+		/**
+		 * The old version used a stored projectCSV as part of its hashcode. I
+		 * changed this to just using the projectIDSet, but that reversed the
+		 * output order. To maintain compatability for the artifact
+		 * reproduction, I'm calling the DumpUtil, but this is silly in the long
+		 * run this should use the projectIDSet and avoid this entaglement.
+		 * 
+		 */
+		String projectCSV = DumpUtil.projectCSV(this);
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-		result = prime * result + ((projectIDSet == null) ? 0 : projectIDSet.hashCode());
+		result = prime * result + ((projectCSV == null) ? 0 : projectCSV.hashCode());
 		return result;
 	}
 
