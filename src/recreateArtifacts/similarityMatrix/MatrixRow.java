@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
-import recreateArtifacts.similarityMatrix.threading.SimilarityMatrixBuilder;
 
 public class MatrixRow {
 
@@ -39,7 +38,7 @@ public class MatrixRow {
 	private double[] computeValuesFromFileContents(String rowFileBase) throws IOException {
 		double[] valuesFromFile = new double[nCols];
 		for (int i = 0; i < nCols; i++) {
-			valuesFromFile[i] = SimilarityMatrixBuilder.verifiedTimeoutFlag;
+			valuesFromFile[i] = RowUtil.VERIFIED_TIMEOUT;
 		}
 		String rowFilePath = RowUtil.getRowFilePath(rowFileBase, nCols, rowIndex);
 		List<String> lines = IOUtil.readLines(rowFilePath);
@@ -49,9 +48,8 @@ public class MatrixRow {
 			} else if (line.startsWith("similarityValues:")) {
 				setSimilarityValues(line, valuesFromFile);
 			}
-			// do nothing for other rows - these cols can use the
-			// verifiedTimeoutFlag they already have
-			// we will set these to belowMinimum if they exceed nErrors
+			// do nothing for other rows - these cols can use
+			// verified timeout
 		}
 		return valuesFromFile;
 	}
@@ -76,7 +74,7 @@ public class MatrixRow {
 		for (String indexString : indices) {
 			if (indexString.length() > 0) {
 				int colIndex = Integer.parseInt(indexString);
-				vals[colIndex] = SimilarityMatrixBuilder.belowMinFlag;
+				vals[colIndex] = RowUtil.BELOW_MIN;
 			}
 		}
 	}
@@ -106,17 +104,17 @@ public class MatrixRow {
 
 		for (int j = 0; j < values.length; j++) {
 			double value_j = values[j];
-			if (value_j == SimilarityMatrixBuilder.initializedFlag) {
+			if (value_j == RowUtil.INITIALIZED) {
 				if (notFirstFlags[0]) {
 					initializedList.append(",");
 				}
 				initializedList.append(j);
-			} else if (value_j == SimilarityMatrixBuilder.incompleteFlag) {
+			} else if (value_j == RowUtil.INCOMPLETE) {
 				if (notFirstFlags[1]) {
 					incompleteList.append(",");
 				}
 				incompleteList.append(j);
-			} else if (value_j == SimilarityMatrixBuilder.cancelledFlag) {
+			} else if (value_j == RowUtil.CANCELLED) {
 				if (notFirstFlags[2]) {
 					cancelledList.append(",");
 				}

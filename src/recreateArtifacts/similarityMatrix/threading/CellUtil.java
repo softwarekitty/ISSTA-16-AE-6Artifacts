@@ -15,13 +15,6 @@ import recreateArtifacts.similarityMatrix.RowUtil;
 
 public class CellUtil {
 	
-	// these seem like some common names - package visibility please
-	final static double INITIALIZED = 0.00000987654321;
-	final static double INCOMPLETE = 0.00000123456789;
-	final static double CANCELLED = 0.0000050101010101;
-	final static double VERIFIED_TIMEOUT = 0.00000701702703;
-	final static double BELOW_MIN = 0.00000307207107;
-	
 	public static Integer[] getBatchOfIndices(String allRowsBase, Integer nKeys, Integer batchSize,
 			boolean buildingRows) throws IOException {
 		Integer nAdded = 0;
@@ -40,11 +33,11 @@ public class CellUtil {
 		}
 		return indices.toArray(new Integer[indices.size()]);
 	}
-	
+
 	// http://stackoverflow.com/questions/4819855/time-limit-on-individual-threads-with-executorservice
-	public static Future<Boolean> executeTask(Callable<Boolean> c, long timeoutMS, ExecutorService service,
+	public static <T> Future<T> executeTask(Callable<T> c, long timeoutMS, ExecutorService service,
 			ScheduledExecutorService canceller) {
-		final Future<Boolean> future = service.submit(c);
+		final Future<T> future = service.submit(c);
 		canceller.schedule(new Callable<Void>() {
 			public Void call() {
 				future.cancel(true);

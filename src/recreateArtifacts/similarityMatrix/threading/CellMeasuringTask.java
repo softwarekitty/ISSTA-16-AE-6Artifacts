@@ -10,6 +10,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import recreateArtifacts.similarityMatrix.RowUtil;
+
 public class CellMeasuringTask implements Callable<CellResult> {
 	private final int rowIndex;
 	private final int colIndex;
@@ -18,7 +20,8 @@ public class CellMeasuringTask implements Callable<CellResult> {
 	private final String[] matchStrings;
 	private final int rowTimeLimitMS;
 
-	public CellMeasuringTask(int rowIndex, int colIndex, double minSim, Regex regex, String[] matchStrings, int rowTimeLimitMS) {
+	public CellMeasuringTask(int rowIndex, int colIndex, double minSim, Regex regex, String[] matchStrings,
+			int rowTimeLimitMS) {
 		this.rowIndex = rowIndex;
 		this.colIndex = colIndex;
 		this.minSim = minSim;
@@ -27,15 +30,19 @@ public class CellMeasuringTask implements Callable<CellResult> {
 		this.rowTimeLimitMS = rowTimeLimitMS;
 	}
 
+	public Integer getColIndex() {
+		return colIndex;
+	}
+
 	@Override
 	public CellResult call() throws Exception {
-		double resultValue = CellUtil.INCOMPLETE;
-		ExecutorService maxPriorityExecutor = null;
+		double resultValue = RowUtil.INCOMPLETE;
+		ExecutorService service = null;
 		ScheduledExecutorService canceller = null;
-		
-		try{
+
+		try {
 			// above all, prefer canceling threads to starving the cancelers
-			maxPriorityExecutor = CellUtil.getCustomExecutorService(6, Thread.NORM_PRIORITY);
+			service = CellUtil.getCustomExecutorService(6, Thread.NORM_PRIORITY);
 			canceller = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 				public Thread newThread(Runnable r) {
 					Thread t = new Thread(r);
@@ -44,78 +51,79 @@ public class CellMeasuringTask implements Callable<CellResult> {
 					return t;
 				}
 			});
-			
+
 			MatchTask[] matchTasks = new MatchTask[matchStrings.length];
-			for(int i=0;i<matchStrings.length;i++){
-				matchTasks[i] =  new MatchTask(regex,matchStrings[i]);
+			for (int i = 0; i < matchStrings.length; i++) {
+				matchTasks[i] = new MatchTask(regex, matchStrings[i]);
 			}
-			
+
 			List<Future<Boolean>> matchResults = new ArrayList<Future<Boolean>>();
 			for (int i = 0; i < matchTasks.length; i++) {
-				matchResults.add(CellUtil.executeTask(matchTasks[i], rowTimeLimitMS, maxPriorityExecutor, canceller));
+				matchResults.add(CellUtil.executeTask(matchTasks[i], rowTimeLimitMS, service, canceller));
 			}
 			double alsoMatchingCounter = 0;
 			int notMatchingCounter = 0;
-			
+
 			boolean allFinished = false;
-			
+
 			// for backing off, wait between 128 and 4096 millis
 			int nChecksCounter = 0;
-			int backoffAfterNChecks = (int) (matchStrings.length*1.41);
+			int backoffAfterNChecks = (int) (matchStrings.length * 1.41);
 			int currentBackoffExponent = 7;
 			int maxExponent = 12;
-			
+
 			int maxNonMatches = CellUtil.getMaxNonMatches(minSim, matchStrings.length);
 			Iterator<Future<Boolean>> it = matchResults.iterator();
-			while(notMatchingCounter <= maxNonMatches && !allFinished){
-				if(matchResults.size()==0){
+			while (notMatchingCounter <= maxNonMatches && !allFinished) {
+				if (matchResults.size() == 0) {
 					allFinished = true;
-				}else if(it.hasNext()){
+				} else if (it.hasNext()) {
 					Future<Boolean> result = it.next();
-					if(result.isDone()){
+					if (result.isDone()) {
 						Boolean matches = result.get();
-						if(matches){
+						if (matches) {
 							alsoMatchingCounter++;
-						}else{
+						} else {
 							notMatchingCounter++;
 						}
 						it.remove();
 						backoffAfterNChecks--;
-					}else if(result.isCancelled()){
+					} else if (result.isCancelled()) {
 						notMatchingCounter++;
 						it.remove();
 						backoffAfterNChecks--;
 					}
-				}else{
+				} else {
 					it = matchResults.iterator();
 				}
 				nChecksCounter++;
-				if(nChecksCounter >=backoffAfterNChecks){
-					
+				if (nChecksCounter >= backoffAfterNChecks) {
+
 					// quit looping for a moment
-					Thread.sleep(2^currentBackoffExponent);
-					
-					currentBackoffExponent = (currentBackoffExponent<maxExponent) ? currentBackoffExponent+1 : currentBackoffExponent;
+					Thread.sleep(2 ^ currentBackoffExponent);
+
+					currentBackoffExponent = (currentBackoffExponent < maxExponent) ? currentBackoffExponent + 1
+							: currentBackoffExponent;
 					nChecksCounter = 0;
 				}
 			}
-			if(notMatchingCounter > maxNonMatches){
-				resultValue = CellUtil.BELOW_MIN;
-			}else{
-				resultValue = alsoMatchingCounter/matchStrings.length;
+			if (notMatchingCounter > maxNonMatches) {
+				resultValue = RowUtil.BELOW_MIN;
+			} else {
+				resultValue = alsoMatchingCounter / matchStrings.length;
 			}
-		}catch(Exception e){
-			System.err.println("unexpected exception in cell - row: "+rowIndex+" col: "+colIndex+ " exception type: " + e.toString());
-			return new CellResult(resultValue,colIndex,rowIndex);
-		}finally{
-			if(maxPriorityExecutor != null){
-				maxPriorityExecutor.shutdown();
+		} catch (Exception e) {
+			System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
+					+ " exception type: " + e.toString());
+			return new CellResult(resultValue, colIndex, rowIndex);
+		} finally {
+			if (service != null) {
+				service.shutdown();
 			}
-			if(canceller != null){
+			if (canceller != null) {
 				canceller.shutdown();
 			}
 		}
-		return new CellResult(resultValue,colIndex,rowIndex);
+		return new CellResult(resultValue, colIndex, rowIndex);
 	}
-
 }

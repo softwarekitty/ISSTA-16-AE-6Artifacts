@@ -7,10 +7,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import main.io.IOUtil;
+import recreateArtifacts.similarityMatrix.threading.CellMeasuringTask;
+import recreateArtifacts.similarityMatrix.threading.CellResult;
 
 public class RowUtil {
+
+	// these seem like some common names - package visibility please
+	public final static double INITIALIZED = 0.00000987654321;
+	public final static double INCOMPLETE = 0.00000123456789;
+	public final static double CANCELLED = 0.0000050101010101;
+	public final static double VERIFIED_TIMEOUT = 0.00000701702703;
+	public final static double BELOW_MIN = 0.00000307207107;
 
 	public static int nRowsExist(String allRowsBase, int nRows) {
 
@@ -158,5 +172,17 @@ public class RowUtil {
 
 	public static boolean rowExists(String allRowsBase, Integer nKeys, Integer rowIndex) {
 		return new File(getRowFilePath(allRowsBase, nKeys, rowIndex)).exists();
+	}
+
+	public static Future<CellResult> executeTask(CellMeasuringTask task, int timeoutMS, ExecutorService service,
+			ScheduledExecutorService canceller) {
+		final Future<CellResult> future = service.submit(task);
+		canceller.schedule(new Callable<Void>() {
+			public Void call() {
+				future.cancel(true);
+				return null;
+			}
+		}, timeoutMS, TimeUnit.MILLISECONDS);
+		return future;
 	}
 }

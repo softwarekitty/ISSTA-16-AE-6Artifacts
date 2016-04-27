@@ -1,15 +1,13 @@
 package recreateArtifacts.similarityMatrix;
 
 import java.io.File;
-import java.io.IOException;
 
 import recreateArtifacts.PathUtil;
-import recreateArtifacts.similarityMatrix.threading.SimilarityMatrixBuilder;
-import recreateArtifacts.similarityMatrix.threading.TimeoutVerifier;
+import recreateArtifacts.similarityMatrix.threading.RegexRunner;
 
 public class Main_MatrixBuilder {
 
-	static void Main(String[] args) throws IOException {
+	static void Main(String[] args) throws Exception {
 		System.out.println("hello from MatrixBuilder");
 		String allRowsBase = PathUtil.allRowsBase();
 		String rexStringsBase = PathUtil.rexStringsBase();
@@ -30,13 +28,16 @@ public class Main_MatrixBuilder {
 			System.out.println("all row files are present! Counting unverified rows");
 			int unverifiedTimeoutRows = RowUtil.countUnverifiedRows(allRowsBase, group.size());
 			if (unverifiedTimeoutRows > 0) {
-				int nRunnawaysWithoutStress = 1024;
-				System.out
-						.println(unverifiedTimeoutRows + " rows have unverified timeouts.  verifying a chunk of up to "
-								+ nRunnawaysWithoutStress + " cells with timeouts.");
-				TimeoutVerifier.verifyRows(allRowsBase, minSimilarity, group, nRunnawaysWithoutStress, batchSize,
-						rexStringsBase, nRexStringsToUse);
-				System.out.println("chunk of timeout verification complete");
+				System.out.println("why are there unverified rows?");
+				System.exit(1);
+
+//				int nRunnawaysWithoutStress = 1024;
+//				System.out
+//						.println(unverifiedTimeoutRows + " rows have unverified timeouts.  verifying a chunk of up to "
+//								+ nRunnawaysWithoutStress + " cells with timeouts.");
+//				TimeoutVerifier.verifyRows(allRowsBase, minSimilarity, group, nRunnawaysWithoutStress, batchSize,
+//						rexStringsBase, nRexStringsToUse);
+//				System.out.println("chunk of timeout verification complete");
 			} else {
 				System.out.println("all cells are valid - creating matrices and abc file");
 				String abcOutputPath = PathUtil.getPathMatrix() + "output/similarityGraph.abc";
@@ -47,7 +48,7 @@ public class Main_MatrixBuilder {
 		} else {
 
 			System.out.println("batchSize: " + batchSize + " nRowsBefore: " + nRowsBefore + " nRows: " + group.size());
-			SimilarityMatrixBuilder.createBatchOfRows(batchSize, allRowsBase, group, rexStringsBase, minSimilarity,
+			RegexRunner.runBatchOfRows(batchSize, allRowsBase, group, rexStringsBase, minSimilarity,
 					nRexStringsToUse);
 			int nRowsAfter = RowUtil.nRowsExist(allRowsBase, group.size());
 			System.out.println(
