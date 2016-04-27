@@ -47,4 +47,16 @@ public class PathUtil {
 		return getArtifactPath() + "fullCorpus.tsv";
 	}
 
+	public static String pathToSimilarityGraph() {
+		return getArtifactPath() + "similarityGraph.abc";
+	}
+
+	public static String pathToFilteredCorpus() {
+		return getArtifactPath() + "filteredCorpus.tsv";
+	}
+
+	public static String pathToOriginalOrdering() {
+		return getArtifactPath() + "originalCorpusOrdering.tsv";
+	}
+
 }

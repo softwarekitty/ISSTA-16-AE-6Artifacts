@@ -21,31 +21,16 @@ import org.json.JSONException;
 
 import main.core.RegexProjectSet;
 import main.core.features.FeatureDictionary;
-import main.io.Config;
 import main.io.IOUtil;
 import main.io.LoadUtil;
 import main.parse.PythonParsingException;
 import main.parse.QuoteRuleException;
+import recreateArtifacts.PathUtil;
 
 public class Main_FeatureStatsTableBuilder {
 	
-	private static String pathToThisFolder(Config config){
-		return config.homePath + "/src/recreateArtifacts/featureTable/";
-	}
-	
-	private static String getConnectionString(Config config) {
-		String pathToDb = new File(Config.homePath, "artifacts/merged_report.db").getPath();
-		return "jdbc:sqlite:" + pathToDb;
-	}
-	
-	private static String getPathToRecreateCorpus() {
-		return "src/recreateArtifacts/corpus/";
-	}
-	
 	public static void main(String[] args) throws IOException, JSONException, ClassNotFoundException, SQLException, IllegalArgumentException, QuoteRuleException, PythonParsingException{
-		Config config = new Config();
-		String pathToCorpusFile = new File(Config.homePath, getPathToRecreateCorpus()+"fullCorpus.txt").getPath();
-		TreeSet<RegexProjectSet> corpus = LoadUtil.loadRegexProjectSetInput(IOUtil.readLines(pathToCorpusFile));
+		TreeSet<RegexProjectSet> corpus = LoadUtil.loadRegexProjectSetInput(IOUtil.readLines(PathUtil.pathToCorpusFile()));
 		StringBuilder sb = new StringBuilder();
 		sb.append("\\documentclass[12pt]{article}\n");
 		sb.append("\\usepackage[margin=0.4in]{geometry}\n");
@@ -55,9 +40,9 @@ public class Main_FeatureStatsTableBuilder {
 		sb.append("\\newcommand{\\no}{\\tikz\\draw[black] (0,0) circle (.5ex);}\n");
 		sb.append("\\pagenumbering{gobble}\n");
 		sb.append("\\begin{document}\n");
-		sb.append(featureStats(corpus,getConnectionString(config)));
+		sb.append(featureStats(corpus,PathUtil.getConnectionString()));
 		sb.append("\\end{document}\n");
-		IOUtil.createAndWrite(new File(pathToThisFolder(config),"featureStats.tex"), sb.toString());
+		IOUtil.createAndWrite(new File(PathUtil.getPathFeature()+"output/featureStats.tex"), sb.toString());
 	}
 
 	public static String featureStats(TreeSet<RegexProjectSet> corpus,
@@ -118,7 +103,7 @@ public class Main_FeatureStatsTableBuilder {
 		StringBuilder sb = new StringBuilder();
 		String between = " & ";
 		sb.append("\\begin{table*}\n\\begin{scriptsize}\n\\begin{center}\n"
-			+ "\\caption{How Frequently do Features Appear in Projects, and Which Features are Supported By Four Major Regex Projects? (RQ2)}\n"
+			+ "\\caption{How Frequently do Features Appear in Projects, and Which Features are Supported By Four Major Regex Projects? (Table 4 in the paper)}\n"
 			+ "\\label{table:featureStats}\n"
 			+ "\\begin{tabular}\n{llllcccccccccc}\n");
 		sb.append("rank & code & description & example & brics & hampi & Rex & RE2 & nPatterns & \\% patterns & nProjects & \\% projects \\\\ \n\\toprule[0.16em]\n");
@@ -432,12 +417,9 @@ public class Main_FeatureStatsTableBuilder {
 				FeatureDictionary.I_REP_LAZY };
 		int[] rexSortaFeatures = { FeatureDictionary.I_META_CAPTURING_GROUP };
 		int[] re2SortaFeatures = { FeatureDictionary.I_META_CAPTURING_GROUP };
-		int[][] maybes = { bricsSortaFeatures, hampiSortaFeatures,
-				rexSortaFeatures, re2SortaFeatures };
 
 		int[] excl = excluded[projectIndex];
 		for (int i : excl) {
-			// System.out.println("ID: " + ID + " i: " + i);
 			if (i == ID) {
 				return "\\no";
 			}

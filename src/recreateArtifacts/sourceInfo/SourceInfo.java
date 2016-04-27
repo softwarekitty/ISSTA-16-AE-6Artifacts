@@ -1,15 +1,15 @@
-package recreateArtifacts.miningDataSources;
+package recreateArtifacts.sourceInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public 	class CommitSecsSHA_cloneUrl{
+public 	class SourceInfo{
 	long commitSecs;
 	String sha;
 	String cloneUrl;
 	String repoID;
 	
-	public CommitSecsSHA_cloneUrl(){
+	public SourceInfo(){
 		this.commitSecs = Long.MIN_VALUE;
 		this.sha = "INVALID_SHA";
 		this.cloneUrl = "INVALID_CLONEURL";

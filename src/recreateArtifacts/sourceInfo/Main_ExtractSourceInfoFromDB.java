@@ -1,4 +1,4 @@
-package recreateArtifacts.miningDataSources;
+package recreateArtifacts.sourceInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,32 +12,27 @@ import java.util.Map.Entry;
 
 import org.json.JSONException;
 
-import main.io.Config;
 import main.io.IOUtil;
+import recreateArtifacts.PathUtil;
 
-public class Main_ExtractProjectInfoFromDB {
-	
-	private static String getPathToDump(){
-		return "src/recreateArtifacts/miningDataSources/";
-	}
+public class Main_ExtractSourceInfoFromDB {
 
 	public static void main(String[] args) throws IOException, JSONException, ClassNotFoundException, SQLException {
-		Config config = new Config();
-		File projectInfoDump = new File(config.homePath,getPathToDump()+"projectInfo.txt");
-		IOUtil.createAndWrite(projectInfoDump, getInfoFileContent(config));
+		File projectInfoDump = new File(PathUtil.getPathSource()+"output/projectInfo.tsv");
+		IOUtil.createAndWrite(projectInfoDump, getInfoFileContent());
 	}
 
-	private static String getInfoFileContent(Config config) throws SQLException, ClassNotFoundException, JSONException {
+	private static String getInfoFileContent() throws SQLException, ClassNotFoundException, JSONException {
 		
 		// prepare sql
 		Connection c = null;
 		Statement stmt = null;
 		Class.forName("org.sqlite.JDBC");
-		c = DriverManager.getConnection(getConnectionString(config));
+		c = DriverManager.getConnection(PathUtil.getConnectionString());
 		c.setAutoCommit(false);
 		stmt = c.createStatement();
 
-		HashMap<Integer, CommitSecsSHA_cloneUrl> projectInfoMap = new HashMap<Integer, CommitSecsSHA_cloneUrl>();
+		HashMap<Integer, SourceInfo> projectInfoMap = new HashMap<Integer, SourceInfo>();
 		String query = "select uniqueSourceID, sourceJSON from RegexCitationMerged;";
 
 		// these are all the distinct patterns with weight
@@ -47,9 +42,9 @@ public class Main_ExtractProjectInfoFromDB {
 			int projectID = rs.getInt("uniqueSourceID");
 			String sourceJSON = rs.getString("sourceJSON");
 			
-			CommitSecsSHA_cloneUrl info = projectInfoMap.get(projectID);
+			SourceInfo info = projectInfoMap.get(projectID);
 			if(info==null){
-				info = new CommitSecsSHA_cloneUrl();
+				info = new SourceInfo();
 			}
 			info.update(sourceJSON);
 			projectInfoMap.put(projectID,info);
@@ -57,7 +52,7 @@ public class Main_ExtractProjectInfoFromDB {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("INTERNAL_ID\t\t\t\t\tCLONE_URL\t\t\t\t\tLAST_COMMIT_SHA\t\t\t\t\tGITHUB_REPO_ID\n");
-		for(Entry<Integer, CommitSecsSHA_cloneUrl> infoEntry : projectInfoMap.entrySet()){
+		for(Entry<Integer, SourceInfo> infoEntry : projectInfoMap.entrySet()){
 			sb.append(infoEntry.getValue().dumpTSV(infoEntry.getKey()));
 			sb.append("\n");
 		}
@@ -67,12 +62,5 @@ public class Main_ExtractProjectInfoFromDB {
 		c.close();
 		return sb.toString();
 	}
-	
-	private static String getConnectionString(Config config) {
-		String pathToDb = new File(Config.homePath, "artifacts/merged_report.db").getPath();
-		return "jdbc:sqlite:" + pathToDb;
-	}
-	
-
-
 }
+
