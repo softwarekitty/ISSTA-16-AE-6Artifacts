@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
@@ -29,19 +30,20 @@ public class Main_RecreateCorpusFromDB {
 
 	public static void main(String[] args) throws ClassNotFoundException, IllegalArgumentException, SQLException,
 			QuoteRuleException, PythonParsingException, IOException, JSONException {
-		TreeSet<RegexProjectSet> corpusFromDB = initializeCorpus_and_refreshPatternTracking(PathUtil.getConnectionString());
+		TreeSet<RegexProjectSet> corpusFromDB = initializeCorpus_and_refreshPatternTracking(
+				PathUtil.getConnectionString());
 		TreeSet<RegexProjectSet> corpusLoadedFromFile = LoadUtil
 				.loadRegexProjectSetInput(IOUtil.readLines(PathUtil.pathToCorpusFile()));
-		
+
 		// will print "true" if the two sets are equal
 		System.out.println(corpusFromDB.equals(corpusLoadedFromFile));
-		
+
 		// output fullCorpus.tsv as created from the database
 		StringBuilder sb = new StringBuilder();
-		for(RegexProjectSet rps : corpusFromDB){
-			sb.append(DumpUtil.regexRow(rps)+"\n");
+		for (RegexProjectSet rps : corpusFromDB) {
+			sb.append(DumpUtil.regexRow(rps) + "\n");
 		}
-		File outputFullCorpus = new File(PathUtil.getPathCorpus()+"/output/fullCorpus.tsv");
+		File outputFullCorpus = new File(PathUtil.getPathCorpus() + "/output/fullCorpus.tsv");
 		IOUtil.createAndWrite(outputFullCorpus, sb.toString());
 	}
 
@@ -132,7 +134,7 @@ public class Main_RecreateCorpusFromDB {
 			}
 		}
 
-		String pathToPatternTracking =PathUtil.getPathCorpus() + "output/patternTracking/";
+		String pathToPatternTracking = PathUtil.getPathCorpus() + "output/patternTracking/";
 		File errorFile = new File(pathToPatternTracking, "errorPatterns.txt");
 		File alienFile = new File(pathToPatternTracking, "alienPatterns.txt");
 		File unicodeFile = new File(pathToPatternTracking, "unicodePatterns.txt");

@@ -134,21 +134,4 @@ public class Main_ClusteringController {
 		}
 		return lookup;
 	}
-
-	public static HashMap<String, Integer> getPatternIndexMap(String exportedCorpusRaw) throws IOException {
-		HashMap<String, Integer> patternIndexMap = new HashMap<String, Integer>();
-		Pattern finder = Pattern.compile("(\\d+)\\t(\\d+)\\t(.*)");
-		Matcher pairMatcher = finder.matcher(exportedCorpusRaw);
-		while (pairMatcher.find()) {
-			String indexString = pairMatcher.group(1);
-			String originalPattern = pairMatcher.group(3);
-			Integer existsAlready = patternIndexMap.get(originalPattern);
-			if (existsAlready != null) {
-				System.out.println("duplicate original pattern: " + originalPattern);
-				System.exit(1);
-			}
-			patternIndexMap.put(originalPattern, Integer.parseInt(indexString));
-		}
-		return patternIndexMap;
-	}
 }
