@@ -34,7 +34,7 @@ public class Main_ClusteringController {
 		String mclOutputPath = PathUtil.getPathCluster() + "output/clusters.tsv";
 		String mclInput = getMCLInput(mclInputPath, mclOutputPath);
 
-		HashMap<Integer, RegexProjectSet> lookup = getLookup(corpus, getPatternIndexMap(corpus));
+		HashMap<Integer, RegexProjectSet> lookup = getLookup(corpus);
 		TreeSet<Cluster> clusters = getClustersFromGraph(mclOutputPath, mclInput, lookup);
 
 		String patternClusterDumpPath = PathUtil.getPathCluster() + "output/patternClusterDump.tsv";
@@ -73,8 +73,6 @@ public class Main_ClusteringController {
 		// this outputFile is where mcl wrote its output
 		List<String> lines = IOUtil.readLines(fullOutputFilePath);
 		int lineNumber = 0;
-		// int m = 0;
-		// TreeSet<Integer> missingSet = new TreeSet<Integer>();
 
 		// each line of the output is a cluster
 		for (String line : lines) {
@@ -86,62 +84,36 @@ public class Main_ClusteringController {
 				int indexValue = Integer.parseInt(index);
 
 				RegexProjectSet rps = lookup.get(indexValue);
-				if (rps == null) {
-					// happens when the abc file has some index not in
-					// the lookup - 232 values from 13597 to 13910
-					// these are unique patterns were added back
-					// with only edges to themselves to help
-					// to understand a missing 2.5% of projects,
-					// as documented in the git comments on page:
-					// https://github.com/softwarekitty/tour_de_source/commit/020651fca048452df4569e636aebc8e42f9a6153
-					// System.out.println("missing rps at: " + indexValue +
-					// " in cluster: " + cluster.thisClusterID);
-					// missingSet.add(indexValue);
-					// m++;
-
-				} else {
+				/**
+				 * rps can be null when the abc file has some index not in the
+				 * lookup - 232 values from 13597 to 13910 - these are unique
+				 * patterns that were added back with only edges to themselves to
+				 * help with accounting as documented in the git comments on
+				 * page: https://github.com/softwarekitty/tour_de_source/commit/
+				 * 020651fca048452df4569e636aebc8e42f9a6153
+				 */
+				if (rps != null) {
 					boolean added = cluster.add(rps);
 					if (!added) {
 						System.out.println(
 								"indexValue: " + indexValue + " failure to add: " + DumpUtil.dumpRegex(0, 1, rps)
 										+ " problem with: " + Arrays.toString(indices) + "on line: " + lineNumber);
-						// System.out.println("cluster: "+cluster.getContent());
-						// waitNsecsOrContinue(12);
 					}
 				}
 			}
-			if (cluster.isEmpty()) {
-				// these clusters are dummy clusters of size 1 to deal with
-				// an accounting issue - pay them no mind
-				// System.out.println("missing cluster "+m+" on: "+ lineNumber);
-			} else {
+			if (!cluster.isEmpty()) {
 				clusters.add(cluster);
 			}
 			lineNumber++;
 		}
-		// System.out.println("nMissing: " + missingSet.size());
-		// System.out.println("missing set: " + missingSet.toString());
-		// System.exit(0);
 		return clusters;
 	}
 
-	public static HashMap<Integer, RegexProjectSet> getLookup(TreeSet<RegexProjectSet> corpus,
-			HashMap<String, Integer> patternIndexMap) {
-		HashMap<Integer, RegexProjectSet> lookup = new HashMap<Integer, RegexProjectSet>();
-
-		for (RegexProjectSet regex : corpus) {
-			String originalPattern = regex.getPattern();
-			Integer javaIndex = patternIndexMap.get(originalPattern);
-			lookup.put(javaIndex, regex);
-		}
-		return lookup;
-	}
-
-	private static HashMap<String, Integer> getPatternIndexMap(TreeSet<RegexProjectSet> corpus) {
+	public static HashMap<Integer, RegexProjectSet> getLookup(TreeSet<RegexProjectSet> corpus) {
 		/**
 		 * define a comparator that orders the regexes by rawPattern, as this
 		 * was the order used before exporting to Rex, and is needed to map the
-		 * indices from clusters back to patterns
+		 * indices from clusters back to regexes
 		 * 
 		 * @author cc
 		 *
@@ -154,11 +126,11 @@ public class Main_ClusteringController {
 		}
 		TreeSet<RegexProjectSet> rawPatternOrderedCorpus = new TreeSet<RegexProjectSet>(new PatternComparator());
 		rawPatternOrderedCorpus.addAll(corpus);
-		HashMap<String, Integer> patternIndexMap = new HashMap<String, Integer>();
+		HashMap<Integer, RegexProjectSet> theLookup = new HashMap<Integer, RegexProjectSet>();
 		int i = 0;
 		for (RegexProjectSet rps : rawPatternOrderedCorpus) {
-			patternIndexMap.put(rps.getPattern(), i++);
+			theLookup.put(i++, rps);
 		}
-		return patternIndexMap;
+		return theLookup;
 	}
 }
