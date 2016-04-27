@@ -135,8 +135,8 @@ public class RowUtil {
 		}
 	}
 
-	public static HashSet<String> getRexGeneratedStrings(int rowIndex, int nKeys, String rexStringsBase,
-			int nMatchStrings) throws Exception {
+	public static String[] getRexGeneratedStrings(int rowIndex, int nKeys, String rexStringsBase, int nMatchStrings)
+			throws Exception {
 		String rexFilePath = getRexFilePath(rexStringsBase, nKeys, rowIndex);
 		HashSet<String> generatedStrings = new HashSet<String>();
 		String fullTestStringContent = IOUtil.readFileToString(rexFilePath);
@@ -145,8 +145,15 @@ public class RowUtil {
 			throw new Exception("the number of rex generated Strings available (" + testStrings.length
 					+ ") is lower than the number requested (" + nMatchStrings + ")");
 		}
+
+		// eliminate duplicates - there shouldn't be any, but just to be sure
 		generatedStrings.addAll(Arrays.asList(testStrings));
-		return generatedStrings;
+		if (generatedStrings.size() < testStrings.length) {
+			throw new Exception("the number of rex generated Strings provided: (" + testStrings.length
+					+ ") is lower than the number of unique Strings (" + generatedStrings.size()
+					+ ") - some must be a duplicate for regex at row: " + rowIndex);
+		}
+		return testStrings;
 	}
 
 	public static Integer getMaxErrors(double minSimilarity, Integer nMatchingStrings) {

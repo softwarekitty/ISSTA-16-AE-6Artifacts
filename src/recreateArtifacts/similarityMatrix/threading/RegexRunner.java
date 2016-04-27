@@ -1,58 +1,42 @@
 package recreateArtifacts.similarityMatrix.threading;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
+import recreateArtifacts.similarityMatrix.MatrixRow;
+import recreateArtifacts.similarityMatrix.RegexGroup;
 import recreateArtifacts.similarityMatrix.RowUtil;
 
 public class RegexRunner {
-	private final static double INITIALIZED = 0.00000987654321;
-	private final static double INCOMPLETE = 0.00000123456789;
-	private final static double CANCELLED = 0.0000050101010101;
-	private final static double VERIFIED_TIMEOUT = 0.00000701702703;
-	private final static double BELOW_MIN = 0.00000307207107;
 
-	static void validateCell(Integer j, double[] row, HashSet<String> matchingStrings_outer, Regex regex_inner,
-			Integer maxErrors) {
+	public static void runBatchOfRows(int batchSize, String allRowsBase, RegexGroup group, String rexStringsBase,
+			double minSimilarity, int nMatchStrings) throws Exception {
+		int rowTimeLimitMS = 8000;
 
-		double nMatchingStrings = matchingStrings_outer.size();
-		Integer alsoMatchingCounter = 0;
-		Integer errorCounter = 0;
+		boolean buildingRows = true;
+		Integer[] batchIndices = CellUtil.getBatchOfIndices(allRowsBase, group.size(), batchSize, buildingRows);
 
-		for (String matchingString : matchingStrings_outer) {
-
-			if (errorCounter > maxErrors) {
-				row[j] = BELOW_MIN;
-				return;
-			}
-			if (regex_inner.match(matchingString)) {
-				alsoMatchingCounter++;
-			} else {
-				errorCounter++;
-			}
+		// this needs to block anyway, so let it wait until things clear up
+		ExecutorService lowPriorityExec = CellUtil.getCustomExecutorService(4, Thread.MIN_PRIORITY);
+		List<RowTask> batchOfRowTasks = new ArrayList<RowTask>(batchSize);
+		for (int i = 0; i < batchIndices.length; i++) {
+			int rowIndex = batchIndices[i];
+			String[] matchStrings = RowUtil.getRexGeneratedStrings(rowIndex, group.size(), rexStringsBase,
+					nMatchStrings);
+			batchOfRowTasks.set(i,
+					new RowTask(rowIndex, matchStrings, group.getRegexMap(), rowTimeLimitMS, minSimilarity));
 		}
-		double similarity = alsoMatchingCounter / nMatchingStrings;
-		row[j] = similarity;
-	}
+		List<Future<RowResult>> resultFutures = lowPriorityExec.invokeAll(batchOfRowTasks);
+		for (Future<RowResult> resultFuture : resultFutures) {
+			RowResult result = resultFuture.get();
+			int currentRowIndex = result.getRowIndex();
 
-	private static Integer[] getBatchOfIndices(String allRowsBase, Integer nKeys, Integer batchSize,
-			boolean buildingRows) throws IOException {
-		Integer nAdded = 0;
-		List<Integer> indices = new LinkedList<Integer>();
-		for (Integer rowIndex = 0; rowIndex < nKeys; rowIndex++) {
-
-			boolean includeInBatch = buildingRows ? !RowUtil.rowExists(allRowsBase, nKeys, rowIndex)
-					: RowUtil.hasUnverifiedTimeouts(allRowsBase, nKeys, rowIndex);
-			if (includeInBatch) {
-				indices.add(rowIndex);
-				nAdded++;
-			}
-			if (nAdded >= batchSize) {
-				return indices.toArray(new Integer[indices.size()]);
-			}
+			MatrixRow mr = new MatrixRow(currentRowIndex, result.getRowArray(), group.size());
+			mr.writeRowToFile(allRowsBase, minSimilarity);
+			System.out.println(
+					"completed i: " + currentRowIndex + "/" + group.size() + " nMatchStrings:" + nMatchStrings);
 		}
-		return indices.toArray(new Integer[indices.size()]);
 	}
 }
