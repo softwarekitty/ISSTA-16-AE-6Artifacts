@@ -59,4 +59,12 @@ public class PathUtil {
 		return getArtifactPath() + "originalCorpusOrdering.tsv";
 	}
 
+	public static String rexStringsBase() {
+		return getArtifactPath()+"rexStrings/";
+	}
+
+	public static String allRowsBase() {
+		return pathToSimilarityGraph()+"output/allRows/";
+	}
+
 }
