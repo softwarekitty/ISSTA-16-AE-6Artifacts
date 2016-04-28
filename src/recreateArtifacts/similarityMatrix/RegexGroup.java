@@ -12,10 +12,10 @@ import main.io.IOUtil;
 import recreateArtifacts.similarityMatrix.threading.Regex;
 
 public class RegexGroup {
-	private final HashMap<Integer,Regex> regexMap;
+	private final HashMap<Integer, Regex> regexMap;
 	private final List<Integer> keyList;
-	
-	public RegexGroup(String filteredCorpusPath) throws IOException{
+
+	public RegexGroup(String filteredCorpusPath) throws IOException {
 		// create regexMap and keyList
 		regexMap = new HashMap<Integer, Regex>();
 
@@ -41,8 +41,24 @@ public class RegexGroup {
 	public List<Integer> getKeyList() {
 		return keyList;
 	}
-	
-	public int size(){
+
+	public int size() {
 		return keyList.size();
+	}
+
+	/**
+	 * straighten out the weird mapping here
+	 * 
+	 * this comes from the fact that regexes use the java-side index, which is
+	 * not the same as the column index (the matrix is much smaller than the
+	 * corpus)
+	 * 
+	 * @param colIndex
+	 * @return
+	 */
+	public Regex getRegex(int colIndex) {
+		int innerKey = keyList.get(colIndex);
+		Regex regex_inner = regexMap.get(innerKey);
+		return regex_inner;
 	}
 }

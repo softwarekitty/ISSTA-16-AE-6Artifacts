@@ -162,6 +162,10 @@ public class RowUtil {
 
 		// eliminate duplicates - there shouldn't be any, but just to be sure
 		generatedStrings.addAll(Arrays.asList(testStrings));
+		if( generatedStrings.contains(null)){
+			System.err.println("null string");
+			System.exit(1);
+		}
 		if (generatedStrings.size() < testStrings.length) {
 			throw new Exception("the number of rex generated Strings provided: (" + testStrings.length
 					+ ") is lower than the number of unique Strings (" + generatedStrings.size()

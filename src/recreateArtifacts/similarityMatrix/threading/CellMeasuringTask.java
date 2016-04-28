@@ -19,15 +19,19 @@ public class CellMeasuringTask implements Callable<CellResult> {
 	private final Regex regex;
 	private final String[] matchStrings;
 	private final int rowTimeLimitMS;
+	private final ExecutorService service;
+	private final ScheduledExecutorService canceller;
 
 	public CellMeasuringTask(int rowIndex, int colIndex, double minSim, Regex regex, String[] matchStrings,
-			int rowTimeLimitMS) {
+			int rowTimeLimitMS, ExecutorService service, ScheduledExecutorService canceller) {
 		this.rowIndex = rowIndex;
 		this.colIndex = colIndex;
 		this.minSim = minSim;
 		this.regex = regex;
 		this.matchStrings = matchStrings;
 		this.rowTimeLimitMS = rowTimeLimitMS;
+		this.service = service;
+		this.canceller = canceller;
 	}
 
 	public Integer getColIndex() {
@@ -37,20 +41,9 @@ public class CellMeasuringTask implements Callable<CellResult> {
 	@Override
 	public CellResult call() throws Exception {
 		double resultValue = RowUtil.INCOMPLETE;
-		ExecutorService service = null;
-		ScheduledExecutorService canceller = null;
 
 		try {
 			// above all, prefer canceling threads to starving the cancelers
-			service = CellUtil.getCustomExecutorService(6, Thread.NORM_PRIORITY);
-			canceller = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-				public Thread newThread(Runnable r) {
-					Thread t = new Thread(r);
-					t.setPriority(Thread.MAX_PRIORITY);
-					t.setDaemon(true);
-					return t;
-				}
-			});
 
 			MatchTask[] matchTasks = new MatchTask[matchStrings.length];
 			for (int i = 0; i < matchStrings.length; i++) {
@@ -107,6 +100,7 @@ public class CellMeasuringTask implements Callable<CellResult> {
 					nChecksCounter = 0;
 				}
 			}
+
 			if (notMatchingCounter > maxNonMatches) {
 				resultValue = RowUtil.BELOW_MIN;
 			} else {
@@ -115,14 +109,8 @@ public class CellMeasuringTask implements Callable<CellResult> {
 		} catch (Exception e) {
 			System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
 					+ " exception type: " + e.toString());
+			e.printStackTrace();
 			return new CellResult(resultValue, colIndex, rowIndex);
-		} finally {
-			if (service != null) {
-				service.shutdown();
-			}
-			if (canceller != null) {
-				canceller.shutdown();
-			}
 		}
 		return new CellResult(resultValue, colIndex, rowIndex);
 	}

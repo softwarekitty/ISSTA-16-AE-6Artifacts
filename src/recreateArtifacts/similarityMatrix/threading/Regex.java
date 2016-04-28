@@ -47,7 +47,9 @@ public class Regex {
 		InterruptibleCharSequence seq = new InterruptibleCharSequence(
 				matchingString.subSequence(0, matchingString.length()));
 		Matcher matcher = regex.matcher(seq);
-		return matcher.find();
+		boolean found = matcher.find();
+//		System.out.println("pattern: "+regex.pattern()+" seq: "+seq+" found: "+found);
+		return found;
 	}
 
 	// cite:

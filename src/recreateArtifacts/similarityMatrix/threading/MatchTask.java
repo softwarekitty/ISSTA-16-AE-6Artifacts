@@ -12,7 +12,7 @@ public class MatchTask implements Callable<Boolean>{
 
 	@Override
 	public Boolean call() throws Exception {
-		return regex.match(input);
+		return new Boolean(regex.match(input));
 	}
 
 }
