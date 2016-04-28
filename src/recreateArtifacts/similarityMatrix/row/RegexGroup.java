@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix;
+package recreateArtifacts.similarityMatrix.row;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
-import recreateArtifacts.similarityMatrix.threading.Regex;
 
 public class RegexGroup {
 	private final HashMap<Integer, Regex> regexMap;

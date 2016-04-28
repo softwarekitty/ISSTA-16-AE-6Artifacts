@@ -1,6 +1,8 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.row.cell;
 
 import java.util.concurrent.Callable;
+
+import recreateArtifacts.similarityMatrix.row.Regex;
 
 public class MatchTask implements Callable<Boolean>{
 	private final Regex regex;

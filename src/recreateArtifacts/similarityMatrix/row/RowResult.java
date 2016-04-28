@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.row;
 
 public class RowResult {
 

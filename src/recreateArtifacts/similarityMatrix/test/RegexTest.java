@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -10,6 +10,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import recreateArtifacts.similarityMatrix.row.Regex;
+import recreateArtifacts.similarityMatrix.row.cell.MatchTask;
 
 // keep this proof
 public class RegexTest {

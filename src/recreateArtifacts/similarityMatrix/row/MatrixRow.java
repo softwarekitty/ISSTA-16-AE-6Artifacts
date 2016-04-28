@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix;
+package recreateArtifacts.similarityMatrix.row;
 
 import java.io.File;
 import java.io.IOException;

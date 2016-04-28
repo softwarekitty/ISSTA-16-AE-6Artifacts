@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.row;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,8 +11,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
-import recreateArtifacts.similarityMatrix.RegexGroup;
-import recreateArtifacts.similarityMatrix.RowUtil;
+import recreateArtifacts.similarityMatrix.row.cell.CellMeasuringTask;
+import recreateArtifacts.similarityMatrix.row.cell.CellResult;
 
 public class RowTask implements Callable<RowResult> {
 	private final int rowIndex;

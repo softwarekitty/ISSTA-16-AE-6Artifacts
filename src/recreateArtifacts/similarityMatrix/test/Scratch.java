@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix;
+package recreateArtifacts.similarityMatrix.test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

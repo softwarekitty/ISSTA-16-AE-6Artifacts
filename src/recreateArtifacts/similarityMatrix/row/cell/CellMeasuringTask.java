@@ -1,11 +1,12 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.row.cell;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
-import recreateArtifacts.similarityMatrix.RowUtil;
+import recreateArtifacts.similarityMatrix.row.Regex;
+import recreateArtifacts.similarityMatrix.row.RowUtil;
 
 public class CellMeasuringTask implements Callable<CellResult> {
 	private final int rowIndex;

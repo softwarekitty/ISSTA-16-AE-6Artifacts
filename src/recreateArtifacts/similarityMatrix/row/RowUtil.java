@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix;
+package recreateArtifacts.similarityMatrix.row;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import main.io.IOUtil;
-import recreateArtifacts.similarityMatrix.threading.CellMeasuringTask;
-import recreateArtifacts.similarityMatrix.threading.CellResult;
+import recreateArtifacts.similarityMatrix.row.cell.CellMeasuringTask;
+import recreateArtifacts.similarityMatrix.row.cell.CellResult;
 
 public class RowUtil {
 

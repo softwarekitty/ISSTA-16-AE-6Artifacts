@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.row;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +11,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import recreateArtifacts.similarityMatrix.MatrixRow;
-import recreateArtifacts.similarityMatrix.RegexGroup;
-import recreateArtifacts.similarityMatrix.RowUtil;
+import recreateArtifacts.similarityMatrix.row.cell.CellMeasuringTask;
+import recreateArtifacts.similarityMatrix.row.cell.CellResult;
+import recreateArtifacts.similarityMatrix.row.cell.CellUtil;
 
 public class RegexRunner {
 

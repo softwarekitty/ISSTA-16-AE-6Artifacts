@@ -1,4 +1,4 @@
-package recreateArtifacts.similarityMatrix.threading;
+package recreateArtifacts.similarityMatrix.row.cell;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import recreateArtifacts.similarityMatrix.RowUtil;
+import recreateArtifacts.similarityMatrix.row.RowUtil;
 
 public class CellUtil {
 	

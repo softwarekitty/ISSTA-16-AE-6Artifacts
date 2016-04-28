@@ -1,9 +1,15 @@
 package recreateArtifacts.similarityMatrix;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 
+import main.io.IOUtil;
 import recreateArtifacts.PathUtil;
-import recreateArtifacts.similarityMatrix.threading.RegexRunner;
+import recreateArtifacts.similarityMatrix.row.MatrixRow;
+import recreateArtifacts.similarityMatrix.row.RegexGroup;
+import recreateArtifacts.similarityMatrix.row.RegexRunner;
+import recreateArtifacts.similarityMatrix.row.RowUtil;
 
 public class Main_MatrixBuilder {
 
@@ -41,7 +47,7 @@ public class Main_MatrixBuilder {
 			} else {
 				System.out.println("all cells are valid - creating matrices and abc file");
 				String abcOutputPath = PathUtil.getPathMatrix() + "output/similarityGraph.abc";
-				PostProcess.createMatricesAndABC(abcOutputPath,minSimilarity, group, allRowsBase);
+				createMatricesAndABC(abcOutputPath,minSimilarity, group, allRowsBase);
 				System.out.println("matrix and abc files are written - exiting");
 				return;
 			}
@@ -56,4 +62,19 @@ public class Main_MatrixBuilder {
 			return;
 		}
 	}
+	
+	private static void createMatricesAndABC(String abcOutputPath, double minSimilarity, RegexGroup group, String allRowsBase) throws IOException{
+        HashMap<Integer, Integer> keyConverter = RowUtil.getKeyConverter(group.getKeyList());
+        int nRows = group.size();
+		Matrix matrix = new Matrix(nRows);
+		for (Integer rowIndex = 0; rowIndex < nRows; rowIndex++) {
+			MatrixRow mr = new MatrixRow(allRowsBase, rowIndex, nRows);
+			double[] rowValues = mr.getValues();
+			for (Integer j = 0; j < nRows; j++) {
+				matrix.set(rowIndex, j, rowValues[j]);
+			}
+		}
+        String abcContent = matrix.getABC(minSimilarity, keyConverter);
+        IOUtil.createAndWrite(new File(abcOutputPath), abcContent);
+    }
 }
