@@ -155,7 +155,7 @@ public class MatrixRow {
 		rowFileContent.append(belowMinimumList.toString());
 		rowFileContent.append(similarityValues.toString());
 
-		String rowFilePath = RowUtil.getRowFilePath(rowFileBase, nCols, rowIndex);
+		String rowFilePath = RowUtil.getRowFilePath(rowFileBase, nCols, rowIndex);		
 		IOUtil.createAndWrite(new File(rowFilePath), rowFileContent.toString());
 	}
 

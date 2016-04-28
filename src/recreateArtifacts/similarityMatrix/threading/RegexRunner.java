@@ -25,7 +25,7 @@ public class RegexRunner {
 		Integer[] batchIndices = CellUtil.getBatchOfIndices(allRowsBase, group.size(), batchSize, buildingRows);
 
 		// this needs to block anyway, so let it wait until things clear up
-		ExecutorService service = CellUtil.getCustomExecutorService(36, Thread.MIN_PRIORITY);
+		ExecutorService service = CellUtil.getCustomExecutorService(64, Thread.MIN_PRIORITY);
 		
 		// but when we want to cancel, don't let it be starved
 		ScheduledExecutorService canceller = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -87,16 +87,17 @@ public class RegexRunner {
 		List<CellMeasuringTask> matchingTasks = new ArrayList<CellMeasuringTask>(nKeys);
 		for (int colIndex = 0; colIndex < nKeys; colIndex++) {
 			matchingTasks.add(new CellMeasuringTask(rowIndex, colIndex, minSimilarity, group.getRegex(colIndex),
-					matchStrings, rowTimeLimitMS, service, canceller));
+					matchStrings));
 		}
 
 		// only cancel a row after a very long time - that's 20 minutes.
-		int longTimeMS = 1000 * 60 * 20;
+		int longTimeMS = 1000 * 60;
 		HashMap<Integer, Future<CellResult>> rowIndexResultFutureMap = new HashMap<Integer, Future<CellResult>>();
 		for (CellMeasuringTask task : matchingTasks) {
 			rowIndexResultFutureMap.put(task.getColIndex(), RowUtil.executeTask(task, longTimeMS, service, canceller));
 		}
 
+		
 		for (Integer colIndex : rowIndexResultFutureMap.keySet()) {
 			Future<CellResult> future = rowIndexResultFutureMap.get(colIndex);
 			double cellValue = RowUtil.INCOMPLETE;

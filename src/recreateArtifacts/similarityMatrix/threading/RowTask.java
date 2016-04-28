@@ -47,11 +47,10 @@ public class RowTask implements Callable<RowResult> {
 		List<CellMeasuringTask> matchingTasks = new ArrayList<CellMeasuringTask>(nKeys);
 		for (int colIndex = 0; colIndex < nKeys; colIndex++) {
 			matchingTasks.add(new CellMeasuringTask(rowIndex, colIndex, minSimilarity, group.getRegex(colIndex),
-					matchStrings, rowTimeLimitMS, service, canceller));
+					matchStrings));
 		}
 
-		// only cancel a row after a very long time - that's 20 minutes.
-		int longTimeMS = 1000 * 60 * 20;
+		int longTimeMS = 1000 * 60 * 3;
 		HashMap<Integer, Future<CellResult>> rowIndexResultFutureMap = new HashMap<Integer, Future<CellResult>>();
 		for (CellMeasuringTask task : matchingTasks) {
 			rowIndexResultFutureMap.put(task.getColIndex(), RowUtil.executeTask(task, longTimeMS, service, canceller));

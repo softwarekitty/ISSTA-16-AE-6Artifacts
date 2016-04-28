@@ -64,7 +64,7 @@ public class PathUtil {
 	}
 
 	public static String allRowsBase() {
-		return pathToSimilarityGraph()+"output/allRows/";
+		return getPathMatrix()+"output/allRows/";
 	}
 
 }
