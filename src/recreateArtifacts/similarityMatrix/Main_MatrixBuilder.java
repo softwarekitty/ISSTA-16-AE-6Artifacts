@@ -31,10 +31,12 @@ public class Main_MatrixBuilder {
 			System.out.println("Main_MatrixBuilder completed a building step");
 		}else{
 			
-			// if some rows are unverified, then verify those
-			int[] unverifiedIndices = group.getInvalidRowIndices();
-			if(unverifiedIndices.length >0){
-				verify(group, unverifiedIndices);
+			
+			// if some cells are unverified, then verify those
+			// we use the total number in the next step, so get them all
+			List<CellResult> unverifiedCells = group.getInvalidCellResults();
+			if(unverifiedCells.size() >0){
+				verify(group, unverifiedCells);
 				System.out.println("Main_MatrixBuilder completed a verifying step");
 			}else{
 				
@@ -65,19 +67,19 @@ public class Main_MatrixBuilder {
 				+ BUILD_BATCH_SIZE + " nThisBatch: " + unbuiltIndices.length);
 	}
 
-	public static void verify(RegexInputGroup group,int[] unverifiedIndices) throws Exception {
-		int nRowsBefore = group.size() - unverifiedIndices.length;
-		if(unverifiedIndices.length > VERIFY_BATCH_SIZE){
-			unverifiedIndices = Arrays.copyOfRange(unverifiedIndices, 0, VERIFY_BATCH_SIZE);
+	public static void verify(RegexInputGroup group,List<CellResult> unverifiedCells) throws Exception {
+		int nInvalidCellsBefore = unverifiedCells.size();
+		if(unverifiedCells.size() > VERIFY_BATCH_SIZE){
+			unverifiedCells = unverifiedCells.subList(0, VERIFY_BATCH_SIZE);
 		}
-		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedIndices.length + " nRowsVerifiedBefore: "
-				+ nRowsBefore + " nRows: " + group.size());
-		BatchController.verifyBatchOfRows(group, MIN_SIM, unverifiedIndices);
-		int[] unverifiedIndices_after = group.getInvalidRowIndices();
+		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedCells.size() + " nInvalidCellsBefore: "
+				+ nInvalidCellsBefore + " nRows: " + group.size());
+		BatchController.verifyBatchOfCells(group, MIN_SIM, unverifiedCells);
+		List<CellResult> unverifiedCells_after = group.getInvalidCellResults();
 		
-		int nRowsAfter = group.size() - unverifiedIndices_after.length;
-		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedIndices.length + " nRowsVerifiedAfter: "
-				+ nRowsAfter + " nRows: " + group.size());
+		int nInvalidCellsAfter = unverifiedCells_after.size();
+		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedCells_after.size() + " nInvalidCellsAfter: "
+				+ nInvalidCellsAfter + " nRows: " + group.size());
 	}
 
 	public static void export(RegexInputGroup group) throws IOException {

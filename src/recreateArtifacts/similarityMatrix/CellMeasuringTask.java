@@ -40,24 +40,24 @@ public class CellMeasuringTask implements Callable<CellResult> {
 					notMatchingCounter++;
 				}
 				if (notMatchingCounter > maxNonMatches) {
-					return new CellResult(BatchController.BELOW_MIN, colIndex, rowIndex);
+					return new CellResult(BatchController.BELOW_MIN, rowIndex, colIndex);
 				}
 
 				// if it hangs, it should be cancelled eventually
 			} catch (CancellationException e) {
 				System.out.println("timeout for col: " + colIndex + " row: " + rowIndex);
-				return new CellResult(BatchController.CANCELLED, colIndex, rowIndex);
+				return new CellResult(BatchController.CANCELLED, rowIndex, colIndex);
 
 				// if something else happens, consider this incomplete
 			} catch (Exception e) {
 				System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
 						+ " exception type: " + e.toString());
 				e.printStackTrace();
-				return new CellResult(resultValue, colIndex, rowIndex);
+				return new CellResult(resultValue, rowIndex, colIndex);
 			}
 		}
 		resultValue = alsoMatchingCounter / matchStrings.length;
-		return new CellResult(resultValue, colIndex, rowIndex);
+		return new CellResult(resultValue, rowIndex, colIndex);
 	}
 
 	private int getMaxNonMatches(double minSimilarity, int nMatchingStrings) {

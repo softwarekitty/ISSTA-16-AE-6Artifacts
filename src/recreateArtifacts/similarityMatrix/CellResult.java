@@ -3,13 +3,13 @@ package recreateArtifacts.similarityMatrix;
 public class CellResult {
 
 	private final double resultValue;
-	private final int colIndex;
 	private final int rowIndex;
+	private final int colIndex;
 
-	public CellResult(double resultValue, int colIndex, int rowIndex) {
+	public CellResult(double resultValue, int rowIndex, int colIndex) {
 		this.resultValue = resultValue;
-		this.colIndex = colIndex;
 		this.rowIndex = rowIndex;
+		this.colIndex = colIndex;
 	}
 
 	public double getValue() {

@@ -24,6 +24,7 @@ public class BatchController {
 	public final static double CANCELLED = 0.0000050101010101;
 	public final static double VERIFIED_TIMEOUT = 0.00000701702703;
 	public final static double BELOW_MIN = 0.00000307207107;
+	public static final double FROM_FILE_ERROR = 0.00000412436418;
 
 	public static void buildBatchOfRows(RegexInputGroup group, double minSimilarity, int[] batchIndices) throws Exception {
 
@@ -99,8 +100,9 @@ public class BatchController {
 		return rowArray;
 	}
 	
-	public static void verifyBatchOfRows(RegexInputGroup group, double minSimilarity, int[] batchIndices) throws Exception {
-		// TODO
+
+	public static void verifyBatchOfCells(RegexInputGroup group, double minSim, List<CellResult> unverifiedCells) {
+		// TODO Auto-generated method stub
 	}
 
 	public static Future<CellResult> executeTask(CellMeasuringTask task, int timeoutMS, ExecutorService service,
@@ -114,4 +116,5 @@ public class BatchController {
 		}, timeoutMS, TimeUnit.MILLISECONDS);
 		return future;
 	}
+
 }

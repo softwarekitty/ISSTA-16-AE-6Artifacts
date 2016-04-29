@@ -76,28 +76,23 @@ public class RegexInputSubset extends RegexInputGroup {
 	}
 
 	/**
-	 * gets rowIndices for all unverified rows
+	 * gets all unverified CellResults
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
-	public int[] getInvalidRowIndices() throws IOException {
-		List<Integer> indices = new LinkedList<Integer>();
+	public List<CellResult> getInvalidCellResults() throws IOException {
+		List<CellResult> invalidCells = new LinkedList<CellResult>();
 		for (Integer rowIndex = 0; rowIndex < size(); rowIndex++) {
-			if (!(new File(bucketer.getRowPath(subsetKeys[rowIndex])).exists())) {
-				throw new RuntimeException("Cannot verify if row is complete, because row does not exist: " + rowIndex);
+			if (!(new File(bucketer.getRowPath(rowIndex)).exists())) {
+				throw new RuntimeException("Cannot find invald cells in row, because row does not exist: " + rowIndex);
 			} else {
-				MatrixRow mr = new MatrixRow(bucketer.getRowPath(subsetKeys[rowIndex]), size());
-				if (mr.hasUnverifiedTimeouts()) {
-					indices.add(rowIndex);
-				}
+				MatrixRow mr = this.getRow(rowIndex);
+				List<CellResult> rowInvalidResults = mr.getInvalidResults(rowIndex);
+				invalidCells.addAll(rowInvalidResults);
 			}
 		}
-		int[] unverifiedRowIndices = new int[indices.size()];
-		int arrayIndex = 0;
-		for (Integer unverifiedRowIndex : indices) {
-			unverifiedRowIndices[arrayIndex++] = unverifiedRowIndex;
-		}
-		return unverifiedRowIndices;
+		return invalidCells;
 	}
+	
 }
