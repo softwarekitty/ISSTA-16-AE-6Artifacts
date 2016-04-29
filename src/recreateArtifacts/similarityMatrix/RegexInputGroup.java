@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,42 +33,27 @@ import main.io.IOUtil;
  *
  */
 public class RegexInputGroup {
-	private static final String ROW_PREFIX = "row_";
-	private static final String ROW_SUFFIX = ".txt";
-	private static final String INPUT_SET_PREFIX = "rex_";
-	private static final String INPUT_SET_SUFFIX = ".txt";
-	private static final String PATH_SEP = "/";
 
 	private final TreeMap<Integer, Regex> regexMap;
 	private final int[] keys;
-	private final String inputSetBase;
-	private final String rowBase;
 	private final String inputDelimiter;
+	protected final PathBucketer bucketer;
 
 	/**
 	 * creates a regex input group by extracting the regexes from the
 	 * filteredCorpus path. Also validates that the input sets are the
 	 * appropriate size and creates a folder system for saving row data.
-	 * 
-	 * @param filteredCorpusPath
-	 * @param inputSetPath
-	 * @param rowBase
-	 * @param nMatchStrings
-	 * @param inputDelimiter
-	 * @throws Exception
 	 */
-	public RegexInputGroup(String filteredCorpusPath, String inputSetPath, String rowBase, int nMatchStrings,
-			String inputDelimiter) throws Exception {
-		this.inputSetBase = inputSetPath;
-		this.rowBase = rowBase;
+	public RegexInputGroup(List<String> indexRegexLines, int nInputs, String inputDelimiter, PathBucketer bucketer)
+			throws Exception {
 		this.inputDelimiter = inputDelimiter;
+		this.bucketer = bucketer;
 
 		// map from original corpus index to regex
 		regexMap = new TreeMap<Integer, Regex>();
 
 		Pattern numberFinder = Pattern.compile("(\\d+)\\t(.*)");
-		List<String> lines = IOUtil.readLines(filteredCorpusPath);
-		for (String line : lines) {
+		for (String line : indexRegexLines) {
 			Matcher lineMatcher = numberFinder.matcher(line);
 			if (lineMatcher.find()) {
 				int index = Integer.parseInt(lineMatcher.group(1));
@@ -82,106 +66,144 @@ public class RegexInputGroup {
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = it.next();
 		}
-		validateInputSetSizes(nMatchStrings);
-		initializeBucketsIfNeeded();
-	}
-	
-	public RegexInputGroup(RegexInputGroup other){
-		this.inputSetBase = other.inputSetBase;
-		this.rowBase = other.rowBase;
-		this.inputDelimiter = other.inputDelimiter;
-		this.regexMap = other.regexMap;
-		this .keys = other.keys;
+		validateInputSetSizes(nInputs);
 	}
 
+	public RegexInputGroup(RegexInputGroup other) {
+		this.inputDelimiter = other.inputDelimiter;
+		this.regexMap = other.regexMap;
+		this.keys = other.keys;
+		this.bucketer = other.bucketer;
+	}
+
+	/**
+	 * gets the regex
+	 * 
+	 * @param colIndex
+	 *            What regex to get.
+	 * @return The regex for the given column.
+	 */
 	public Regex getRegex(int colIndex) {
 		return regexMap.get(keys[colIndex]);
 	}
 
+	/**
+	 * the number of regexes in this group.
+	 * 
+	 * @return the number of regexes in this group.
+	 */
 	public int size() {
 		return keys.length;
 	}
 
+	/**
+	 * gets the input set from file
+	 * 
+	 * @param rowIndex
+	 *            What row to get the input set for.
+	 * @return The input set.
+	 * @throws IOException
+	 */
 	public String[] getInputSetStrings(int rowIndex) throws IOException {
-		String inputSetFileContent = IOUtil.readFileToString(getInputSetPath(rowIndex));
+		String inputSetFileContent = IOUtil.readFileToString(bucketer.getInputSetPath(rowIndex));
 		return inputSetFileContent.split(inputDelimiter);
 	}
 
-	public String getRowPath(Integer rowIndex) {
-		return rowBase + getBucketFolder(rowIndex) + PATH_SEP + ROW_PREFIX + rowIndex.toString() + ROW_SUFFIX;
+	/**
+	 * gets the matrix row from file
+	 * 
+	 * @param rowIndex
+	 *            What row to get.
+	 * @return The row.
+	 * @throws IOException
+	 */
+	public MatrixRow getRow(int rowIndex) throws IOException {
+		return new MatrixRow(bucketer.getRowPath(rowIndex), size());
 	}
 
-	private String getInputSetPath(Integer rowIndex) {
-		return inputSetBase + getBucketFolder(rowIndex) + PATH_SEP + INPUT_SET_PREFIX + rowIndex.toString()
-				+ INPUT_SET_SUFFIX;
+	/**
+	 * sets the row file contents
+	 * 
+	 * @param rowIndex
+	 *            What row to set.
+	 * @param values
+	 *            All values to set.
+	 * @param minSimilarity
+	 *            Below this, specific values are not written to file.
+	 */
+	public void setRow(int rowIndex, double[] values, double minSimilarity) {
+		MatrixRow mr = new MatrixRow(values);
+		mr.writeRowToFile(bucketer.getRowPath(rowIndex), minSimilarity);
 	}
 
-	public int nRowsExist() {
-		// count the times a file exists for a row in its bucket
-		int numRowsExist = 0;
-		for (int rowIndex = 0; rowIndex < size(); rowIndex++) {
-			if (rowFileExists(rowIndex)) {
-				numRowsExist++;
-			}
-		}
-		return numRowsExist;
-	}
-
-	public Integer[] getBatchOfIndicesForBuildingRows(int batchSize) throws IOException {
-		return getIndices(batchSize, true);
-	}
-
-	public Integer[] getBatchOfIndicesForVerifyingRows(int batchSize) throws IOException {
-		return getIndices(batchSize, false);
-	}
-
-	public double[] getMatrixRowValuesFromFile(Integer rowIndex) throws IOException {
-		MatrixRow mr = new MatrixRow(getRowPath(rowIndex), size());
-		return mr.getValues();
-	}
-
+	/**
+	 * gets the corpus index
+	 * 
+	 * @param i
+	 *            The row index.
+	 * @return The original corpus index for that matrix index.
+	 */
 	public int getCorpusIndex(int i) {
 		return keys[i];
 	}
 
-	protected boolean rowFileExists(int rowIndex) {
-		File rowFile = new File(getRowPath(rowIndex));
-		return rowFile.exists();
-	}
-
-	private void initializeBucketsIfNeeded() {
-		int nBuckets = getNBuckets();
-		for (int bucketNumber = 0; bucketNumber < nBuckets; bucketNumber++) {
-			String bucketName = getBucketName(bucketNumber, nBuckets);
-			File rowBucketFile = new File(rowBase + bucketName);
-			if (!rowBucketFile.exists()) {
-				rowBucketFile.mkdirs();
+	/**
+	 * gets rowIndices for all unbuilt rows
+	 * 
+	 * @return
+	 */
+	public int[] getUnbuiltRowIndices() {
+		List<Integer> indices = new LinkedList<Integer>();
+		for (Integer rowIndex = 0; rowIndex < size(); rowIndex++) {
+			if (!(new File(bucketer.getRowPath(rowIndex)).exists())) {
+				indices.add(rowIndex);
 			}
 		}
-	}
-
-	private int getNBuckets() {
-		return (int) Math.sqrt(size()) + 1;
-	}
-
-	protected String getBucketFolder(int rowIndex) {
-		Integer nBuckets = getNBuckets();
-		Integer bucketID = rowIndex / nBuckets;
-		return getBucketName(bucketID, nBuckets);
-	}
-
-	private String getBucketName(Integer bucketID, Integer nBuckets) {
-		String lastBucketString = nBuckets.toString();
-		String bucketIDString = bucketID.toString();
-
-		int nZeroPads = lastBucketString.length() - bucketIDString.length();
-		for (int padIndex = 0; padIndex < nZeroPads; padIndex++) {
-			bucketIDString = "0" + bucketIDString;
+		int[] unbuiltRowIndices = new int[indices.size()];
+		int arrayIndex = 0;
+		for (Integer unbuiltRowIndex : indices) {
+			unbuiltRowIndices[arrayIndex++] = unbuiltRowIndex;
 		}
-		return bucketIDString;
+		return unbuiltRowIndices;
 	}
 
-	private void validateInputSetSizes(int nMatchStrings) throws IOException {
+	/**
+	 * gets rowIndices for all unverified rows
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public int[] getInvalidRowIndices() throws IOException {
+		List<Integer> indices = new LinkedList<Integer>();
+		for (Integer rowIndex = 0; rowIndex < size(); rowIndex++) {
+			if (!(new File(bucketer.getRowPath(rowIndex)).exists())) {
+				throw new RuntimeException("Cannot verify if row is complete, because row does not exist: " + rowIndex);
+			} else {
+				MatrixRow mr = new MatrixRow(bucketer.getRowPath(rowIndex), size());
+				if (mr.hasUnverifiedTimeouts()) {
+					indices.add(rowIndex);
+				}
+			}
+		}
+		int[] unverifiedRowIndices = new int[indices.size()];
+		int arrayIndex = 0;
+		for (Integer unverifiedRowIndex : indices) {
+			unverifiedRowIndices[arrayIndex++] = unverifiedRowIndex;
+		}
+		return unverifiedRowIndices;
+	}
+	
+	/**
+	 * a regex input set maintains the contract that it will provide a set of
+	 * inputs for a given regex, so on creation, the existence of these inputs
+	 * on file is verified. They are not kept in memory, which could be
+	 * intractable.
+	 * 
+	 * @param nInputs
+	 *            The expected number of inputs to have per regex.
+	 * @throws IOException
+	 */
+	private void validateInputSetSizes(int nInputs) throws IOException {
 
 		for (int rowIndex = 0; rowIndex < size(); rowIndex++) {
 			String[] inputSet = getInputSetStrings(rowIndex);
@@ -190,46 +212,10 @@ public class RegexInputGroup {
 			for (int i = 0; i < inputSet.length; i++) {
 				hashingStringSet.add(inputSet[i]);
 			}
-			if (hashingStringSet.size() < nMatchStrings) {
-				throw new RuntimeException(
-						"the number of rex generated Strings provided: (" + hashingStringSet.size() + ") for rowIndex: "
-								+ rowIndex + " is lower than the number requested (" + nMatchStrings + ")");
+			if (hashingStringSet.size() < nInputs) {
+				throw new RuntimeException("the number of input Strings provided: (" + hashingStringSet.size()
+						+ ") for rowIndex: " + rowIndex + " is lower than the number requested (" + nInputs + ")");
 			}
-		}
-
-	}
-
-	private Integer[] getIndices(Integer batchSize, boolean buildingRows) throws IOException {
-		List<Integer> indices = new LinkedList<Integer>();
-		for (Integer rowIndex = 0; rowIndex < size(); rowIndex++) {
-			boolean includeInBatch = buildingRows ? !rowFileExists(rowIndex) : hasUnverifiedTimeouts(rowIndex);
-			if (includeInBatch) {
-				indices.add(rowIndex);
-			}
-			if (indices.size() >= batchSize) {
-				return indices.toArray(new Integer[indices.size()]);
-			}
-		}
-		return indices.toArray(new Integer[indices.size()]);
-	}
-
-	protected boolean hasUnverifiedTimeouts(int rowIndex) throws IOException {
-		String rowFilePath = getRowPath(rowIndex);
-		File rowFile = new File(rowFilePath);
-		if (!rowFile.exists()) {
-			return false;
-		} else {
-			List<String> lines = IOUtil.readLines(rowFilePath);
-			String line1 = lines.get(0);
-			String line2 = lines.get(1);
-			String line3 = lines.get(2);
-			if (line1 == null || line2 == null || line3 == null) {
-				throw new RuntimeException("when checking for timeouts, missing line in path: " + rowFilePath);
-			} else if (!(line1.equals("initializedList: []") && line2.equals("incompleteList: []")
-					&& line3.equals("cancelledList: []"))) {
-				return true;
-			}
-			return false;
 		}
 	}
 }

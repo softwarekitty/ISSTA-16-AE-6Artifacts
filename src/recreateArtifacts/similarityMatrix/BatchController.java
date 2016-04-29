@@ -25,8 +25,7 @@ public class BatchController {
 	public final static double VERIFIED_TIMEOUT = 0.00000701702703;
 	public final static double BELOW_MIN = 0.00000307207107;
 
-	public static void runBatchOfRows(RegexInputGroup group, int batchSize, double minSimilarity) throws Exception {
-		Integer[] batchIndices = group.getBatchOfIndicesForBuildingRows(batchSize);
+	public static void buildBatchOfRows(RegexInputGroup group, double minSimilarity, int[] batchIndices) throws Exception {
 
 		// this needs to block anyway, so let it wait until things clear up
 		ExecutorService service = Executors.newFixedThreadPool(ROW_THREAD_COUNT, new ThreadFactory() {
@@ -55,8 +54,7 @@ public class BatchController {
 			System.out.println("starting row: " + rowIndex);
 			double[] rowArray = computeOneRow(rowIndex, matchStrings, group, CELL_TIME_LIMIT_MS, minSimilarity, service,
 					canceller);
-			MatrixRow mr = new MatrixRow(rowArray);
-			mr.writeRowToFile(group.getRowPath(rowIndex), minSimilarity);
+			group.setRow(rowIndex, rowArray, minSimilarity);
 			System.out
 					.println("completed i: " + rowIndex + "/" + group.size() + " nMatchStrings:" + matchStrings.length);
 
@@ -99,6 +97,10 @@ public class BatchController {
 			rowArray[colIndex] = cellValue;
 		}
 		return rowArray;
+	}
+	
+	public static void verifyBatchOfRows(RegexInputGroup group, double minSimilarity, int[] batchIndices) throws Exception {
+		// TODO
 	}
 
 	public static Future<CellResult> executeTask(CellMeasuringTask task, int timeoutMS, ExecutorService service,

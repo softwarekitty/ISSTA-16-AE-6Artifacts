@@ -18,30 +18,31 @@ public class MatrixRow {
 
 	// should only be called from within the group
 	public MatrixRow(String rowFilePath, int nCols) throws IOException {
-		this.values = computeValuesFromFileContents(rowFilePath, nCols);
+		throw new RuntimeException("not correct");
+//		this.values = computeValuesFromFileContents(rowFilePath, nCols);
 	}
 	
 	public double[] getValues(){
 		return values;
 	}
 
-	private double[] computeValuesFromFileContents(String rowFilePath, int nCols) throws IOException {
-		double[] valuesFromFile = new double[nCols];
-		for (int i = 0; i < nCols; i++) {
-			valuesFromFile[i] = BatchController.VERIFIED_TIMEOUT;
-		}
-		List<String> lines = IOUtil.readLines(rowFilePath);
-		for (String line : lines) {
-			if (line.startsWith("belowMinimumList")) {
-				setBelowMinValues(line, valuesFromFile);
-			} else if (line.startsWith("similarityValues:")) {
-				setSimilarityValues(line, valuesFromFile);
-			}
-			// do nothing for other rows - these cols can use
-			// verified timeout
-		}
-		return valuesFromFile;
-	}
+//	private double[] computeValuesFromFileContents(String rowFilePath, int nCols) throws IOException {
+//		double[] valuesFromFile = new double[nCols];
+//		for (int i = 0; i < nCols; i++) {
+//			valuesFromFile[i] = BatchController.VERIFIED_TIMEOUT;
+//		}
+//		List<String> lines = IOUtil.readLines(rowFilePath);
+//		for (String line : lines) {
+//			if (line.startsWith("belowMinimumList")) {
+//				setBelowMinValues(line, valuesFromFile);
+//			} else if (line.startsWith("similarityValues:")) {
+//				setSimilarityValues(line, valuesFromFile);
+//			}
+//			// do nothing for other rows - these cols can use
+//			// verified timeout
+//		}
+//		return valuesFromFile;
+//	}
 
 	private void setSimilarityValues(String line, double[] vals) {
 		String similarityValueList = removeBrackets(line);
@@ -145,6 +146,28 @@ public class MatrixRow {
 		rowFileContent.append(similarityValues.toString());
 
 		IOUtil.createAndWrite(new File(rowFilePath), rowFileContent.toString());
+	}
+
+	public boolean hasUnverifiedTimeouts() {
+		// not correct!
+//		String rowFilePath = bucketer.getRowPath(rowIndex);
+//		File rowFile = new File(rowFilePath);
+//		if (!rowFile.exists()) {
+//			return false;
+//		} else {
+//			List<String> lines = IOUtil.readLines(rowFilePath);
+//			String line1 = lines.get(0);
+//			String line2 = lines.get(1);
+//			String line3 = lines.get(2);
+//			if (line1 == null || line2 == null || line3 == null) {
+//				throw new RuntimeException("when checking for timeouts, missing line in path: " + rowFilePath);
+//			} else if (!(line1.equals("initializedList: []") && line2.equals("incompleteList: []")
+//					&& line3.equals("cancelledList: []"))) {
+//				return true;
+//			}
+//			return false;
+//		}
+		return true;
 	}
 
 }
