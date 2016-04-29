@@ -33,7 +33,7 @@ public class CellMeasuringTask implements Callable<CellResult> {
 		int maxNonMatches = getMaxNonMatches(minSim, matchStrings.length);
 		for (int i = 0; i < matchStrings.length; i++) {
 			try {
-				// hangs here
+				// hangs here, may be interrupted
 				if (regex.match(matchStrings[i])) {
 					alsoMatchingCounter++;
 				} else {
@@ -43,17 +43,20 @@ public class CellMeasuringTask implements Callable<CellResult> {
 					return new CellResult(BatchController.BELOW_MIN, rowIndex, colIndex);
 				}
 
-				// if it hangs, it should be cancelled eventually
-			} catch (CancellationException e) {
-				System.out.println("timeout for col: " + colIndex + " row: " + rowIndex);
-				return new CellResult(BatchController.CANCELLED, rowIndex, colIndex);
+				// if it hangs, it should be interrupted eventually
+			} catch (RuntimeException re) {
+				Throwable cause = re.getCause();
+				if (cause != null && cause instanceof InterruptedException) {
+					System.err.println("interruption for col: " + colIndex + " row: " + rowIndex);
+					return new CellResult(BatchController.CANCELLED, rowIndex, colIndex);
+				} else {
 
-				// if something else happens, consider this incomplete
-			} catch (Exception e) {
-				System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
-						+ " exception type: " + e.toString());
-				e.printStackTrace();
-				return new CellResult(resultValue, rowIndex, colIndex);
+					// if something else happens, consider this incomplete
+					System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
+							+ " exception type: " + re.toString());
+					re.printStackTrace();
+					return new CellResult(resultValue, rowIndex, colIndex);
+				}
 			}
 		}
 		resultValue = alsoMatchingCounter / matchStrings.length;
@@ -74,3 +77,10 @@ public class CellMeasuringTask implements Callable<CellResult> {
 		return nMaxNonMatch;
 	}
 }
+
+// catch (CancellationException e) {
+// System.out.println("cancelation for col: " + colIndex + " row: " + rowIndex);
+// return new CellResult(BatchController.CANCELLED, rowIndex, colIndex);
+//
+// // if it hangs, it should be cancelled eventually
+// }

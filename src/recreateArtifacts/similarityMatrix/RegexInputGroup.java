@@ -188,6 +188,19 @@ public class RegexInputGroup {
 	}
 	
 	/**
+	 * set an individual cell value
+	 * @param cellValue
+	 * @throws IOException 
+	 */
+	public void setCellValue(CellResult cellResult, double minSimilarity) throws IOException {
+		int rowIndex = cellResult.getRowIndex();
+		int colIndex = cellResult.getColIndex();
+		MatrixRow mr = this.getRow(rowIndex);
+		mr.setColValue(colIndex,cellResult.getValue());
+		mr.writeRowToFile(bucketer.getRowPath(rowIndex), minSimilarity);
+	}
+	
+	/**
 	 * a regex input set maintains the contract that it will provide a set of
 	 * inputs for a given regex, so on creation, the existence of these inputs
 	 * on file is verified. They are not kept in memory, which could be

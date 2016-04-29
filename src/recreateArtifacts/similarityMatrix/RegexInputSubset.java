@@ -15,6 +15,10 @@ import java.util.TreeSet;
  * This could mean some empty row folders, because the bucketer of the original
  * RegexInputGroup is still used the same.
  * 
+ * That is, if this class thinks there are only 50 regexes, but there are really
+ * 100, then the file storing row 25 will probably be labeled row 38 or
+ * something.
+ * 
  * @author cc
  *
  */
@@ -84,7 +88,7 @@ public class RegexInputSubset extends RegexInputGroup {
 	public List<CellResult> getInvalidCellResults() throws IOException {
 		List<CellResult> invalidCells = new LinkedList<CellResult>();
 		for (Integer rowIndex = 0; rowIndex < size(); rowIndex++) {
-			if (!(new File(bucketer.getRowPath(rowIndex)).exists())) {
+			if (!(new File(bucketer.getRowPath(subsetKeys[rowIndex])).exists())) {
 				throw new RuntimeException("Cannot find invald cells in row, because row does not exist: " + rowIndex);
 			} else {
 				MatrixRow mr = this.getRow(rowIndex);
@@ -95,4 +99,17 @@ public class RegexInputSubset extends RegexInputGroup {
 		return invalidCells;
 	}
 	
+	/**
+	 * set an individual cell value
+	 * @param cellValue
+	 * @throws IOException 
+	 */
+	public void setCellValue(CellResult cellResult, double minSimilarity) throws IOException {
+		int rowIndex = cellResult.getRowIndex();
+		int colIndex = cellResult.getColIndex();
+		MatrixRow mr = this.getRow(rowIndex);
+		mr.setColValue(colIndex,cellResult.getValue());
+		mr.writeRowToFile(bucketer.getRowPath(subsetKeys[rowIndex]), minSimilarity);
+	}
+
 }

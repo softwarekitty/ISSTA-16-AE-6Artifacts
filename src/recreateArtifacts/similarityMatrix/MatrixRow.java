@@ -29,7 +29,7 @@ public class MatrixRow {
 	private double[] computeValuesFromFileContents(String rowFilePath, int nCols) throws IOException {
 		double[] valuesFromFile = new double[nCols];
 		for (int i = 0; i < nCols; i++) {
-			valuesFromFile[i] = BatchController.FROM_FILE_ERROR;
+			valuesFromFile[i] = BatchController.CELL_VALUE_ERROR;
 		}
 		List<String> lines = IOUtil.readLines(rowFilePath);
 		for (String line : lines) {
@@ -46,7 +46,7 @@ public class MatrixRow {
 			}
 		}
 		for (int i = 0; i < nCols; i++) {
-			if (valuesFromFile[i] == BatchController.FROM_FILE_ERROR) {
+			if (valuesFromFile[i] == BatchController.CELL_VALUE_ERROR) {
 				throw new RuntimeException(
 						"when loading row from file: " + rowFilePath + " missing data for index: " + i);
 			}
@@ -82,7 +82,7 @@ public class MatrixRow {
 	private String removeBrackets(String line) {
 		int startIndex = line.indexOf("[");
 		int endIndex = line.indexOf("]");
-		return line.substring(startIndex + 1, (endIndex - startIndex - 1));
+		return line.substring(startIndex+1, endIndex);
 	}
 
 	public void writeRowToFile(String rowFilePath, double minSimilarity) {
@@ -111,6 +111,9 @@ public class MatrixRow {
 			} else if (value_j == BatchController.CANCELLED) {
 				cancelledList.append(j);
 				cancelledList.append(",");
+
+				// notice that unchecked flags are consumed here:
+				// verified timeout is treated as below min
 			} else if (value_j < minSimilarity) {
 				belowMinimumList.append(j);
 				belowMinimumList.append(",");
@@ -135,18 +138,28 @@ public class MatrixRow {
 	}
 
 	private String closedList(StringBuilder listBuilder) {
-		return listBuilder.substring(0, listBuilder.length() - 1) + "]\n";
+		char lastChar = listBuilder.charAt(listBuilder.length() - 1);
+		if (lastChar == ',') {
+			return listBuilder.substring(0, listBuilder.length() - 1) + "]\n";
+		} else {
+			return listBuilder.toString() + "]\n";
+		}
 	}
-	
-	public List<CellResult> getInvalidResults(int rowIndex){
+
+	public List<CellResult> getInvalidResults(int rowIndex) {
 		List<CellResult> invalidCells = new LinkedList<CellResult>();
 		for (int colIndex = 0; colIndex < values.length; colIndex++) {
-			double cellValue= values[colIndex];
+			double cellValue = values[colIndex];
 			if (cellValue == BatchController.INITIALIZED || cellValue == BatchController.INCOMPLETE
 					|| cellValue == BatchController.CANCELLED) {
 				invalidCells.add(new CellResult(cellValue, rowIndex, colIndex));
 			}
 		}
 		return invalidCells;
+	}
+
+	public void setColValue(int colIndex, double value) {
+		System.out.println("setting value to: "+value);
+		values[colIndex] = value;
 	}
 }

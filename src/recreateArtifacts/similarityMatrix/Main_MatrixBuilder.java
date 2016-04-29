@@ -2,6 +2,7 @@ package recreateArtifacts.similarityMatrix;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Main_MatrixBuilder {
 	private final static double MIN_SIM = 0.75;
 	private final static String INPUT_DELIMITER = "\n2jxj8oSFLPEfrP4q8yVn6h0vf\n";
 	// private final static int BUILD_BATCH_SIZE = 256;
-	public final static int BUILD_BATCH_SIZE = 45;
+	public final static int BUILD_BATCH_SIZE = 600;
 	public final static int VERIFY_BATCH_SIZE = 45;
 
 
@@ -85,10 +86,12 @@ public class Main_MatrixBuilder {
 	public static void export(RegexInputGroup group) throws IOException {
 		String abcOutputPath = PathUtil.getPathMatrix() + "output/similarityGraph.abc";
 		createABC(abcOutputPath, group);
-		System.out.println("matrix and abc files are written - exiting");
+		System.out.println("abc file written - exiting");
 	}
 
 	private static void createABC(String abcOutputPath, RegexInputGroup group) throws IOException {
+		DecimalFormat df5 = new DecimalFormat("0.#####");
+		
 
 		// initialize an empty matrix
 		double unsetValue = -2.1435465768;
@@ -129,10 +132,10 @@ public class Main_MatrixBuilder {
 				double edgeWeight = halfMatrix[i][j];
 
 				if (edgeWeight >= MIN_SIM) {
-					abcContent.append(key_i + " " + key_j + " " + edgeWeight + "\n");
+					abcContent.append(key_i + " " + key_j + " " + df5.format(edgeWeight) + "\n");
 				}
 			}
-			abcContent.append(key_i + " " + key_i + " " + 1.0 + "\n");
+			abcContent.append(key_i + " " + key_i + " 1\n");
 		}
 		IOUtil.createAndWrite(new File(abcOutputPath), abcContent.toString());
 	}

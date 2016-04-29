@@ -9,7 +9,7 @@ import recreateArtifacts.similarityMatrix.RegexInputSubset;
 
 public class Test_MatrixBuilder {
 
-	private static final int N_TEST_REGEXES = 45;
+	private static final int N_TEST_REGEXES = 245;
 
 	/**
 	 * this test runs through the same code as the main, but with a subset of

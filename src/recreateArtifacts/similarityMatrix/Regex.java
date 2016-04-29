@@ -44,13 +44,11 @@ public class Regex {
 		regex = Pattern.compile(m.replaceAll("\\\\{"));
 	}
 
-	public boolean match(String matchingString) {
+	public boolean match(String matchingString) throws InterruptedException{
 		InterruptibleCharSequence seq = new InterruptibleCharSequence(
 				matchingString.subSequence(0, matchingString.length()));
 		Matcher matcher = regex.matcher(seq);
 		boolean found = matcher.find();
-		// System.out.println("pattern: "+regex.pattern()+" seq: "+seq+" found:
-		// "+found);
 		return found;
 	}
 
