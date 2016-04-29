@@ -8,39 +8,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
+import recreateArtifacts.similarityMatrix.BatchController;
 
 public class MatrixRow {
-
-	private int rowIndex;
 	private double[] values;
-	private int nCols;
 
-	public MatrixRow(int rowIndex, double[] values, int nCols) {
-		this.rowIndex = rowIndex;
+	public MatrixRow(double[] values) {
 		this.values = values;
-		this.nCols = nCols;
 	}
 
-	public MatrixRow(String rowFileBase, int rowIndex, int nCols) throws IOException {
-		this.nCols = nCols;
-		this.rowIndex = rowIndex;
-		this.values = computeValuesFromFileContents(rowFileBase);
+	// should only be called from within the group
+	public MatrixRow(String rowFilePath, int nCols) throws IOException {
+		this.values = computeValuesFromFileContents(rowFilePath, nCols);
 	}
 
-	public double[] getValues() {
-		return values;
-	}
-
-	public void setValues(double[] vals) {
-		this.values = vals;
-	}
-
-	private double[] computeValuesFromFileContents(String rowFileBase) throws IOException {
+	private double[] computeValuesFromFileContents(String rowFilePath, int nCols) throws IOException {
 		double[] valuesFromFile = new double[nCols];
 		for (int i = 0; i < nCols; i++) {
-			valuesFromFile[i] = RowUtil.VERIFIED_TIMEOUT;
+			valuesFromFile[i] = BatchController.VERIFIED_TIMEOUT;
 		}
-		String rowFilePath = RowUtil.getRowFilePath(rowFileBase, nCols, rowIndex);
 		List<String> lines = IOUtil.readLines(rowFilePath);
 		for (String line : lines) {
 			if (line.startsWith("belowMinimumList")) {
@@ -74,7 +60,7 @@ public class MatrixRow {
 		for (String indexString : indices) {
 			if (indexString.length() > 0) {
 				int colIndex = Integer.parseInt(indexString);
-				vals[colIndex] = RowUtil.BELOW_MIN;
+				vals[colIndex] = BatchController.BELOW_MIN;
 			}
 		}
 	}
@@ -85,7 +71,7 @@ public class MatrixRow {
 		return line.substring(startIndex + 1, (endIndex - startIndex - 1));
 	}
 
-	public void writeRowToFile(String rowFileBase, double minSimilarity) {
+	public void writeRowToFile(String rowFilePath, double minSimilarity) {
 		DecimalFormat df5 = new DecimalFormat("0.0000");
 
 		boolean[] notFirstFlags = new boolean[5];
@@ -104,17 +90,17 @@ public class MatrixRow {
 
 		for (int j = 0; j < values.length; j++) {
 			double value_j = values[j];
-			if (value_j == RowUtil.INITIALIZED) {
+			if (value_j == BatchController.INITIALIZED) {
 				if (notFirstFlags[0]) {
 					initializedList.append(",");
 				}
 				initializedList.append(j);
-			} else if (value_j == RowUtil.INCOMPLETE) {
+			} else if (value_j == BatchController.INCOMPLETE) {
 				if (notFirstFlags[1]) {
 					incompleteList.append(",");
 				}
 				incompleteList.append(j);
-			} else if (value_j == RowUtil.CANCELLED) {
+			} else if (value_j == BatchController.CANCELLED) {
 				if (notFirstFlags[2]) {
 					cancelledList.append(",");
 				}
@@ -155,7 +141,6 @@ public class MatrixRow {
 		rowFileContent.append(belowMinimumList.toString());
 		rowFileContent.append(similarityValues.toString());
 
-		String rowFilePath = RowUtil.getRowFilePath(rowFileBase, nCols, rowIndex);		
 		IOUtil.createAndWrite(new File(rowFilePath), rowFileContent.toString());
 	}
 

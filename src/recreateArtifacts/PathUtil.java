@@ -55,15 +55,11 @@ public class PathUtil {
 		return getArtifactPath() + "filteredCorpus.tsv";
 	}
 
-	public static String pathToOriginalOrdering() {
-		return getArtifactPath() + "originalCorpusOrdering.tsv";
-	}
-
-	public static String rexStringsBase() {
+	public static String pathToInputSetBase() {
 		return getArtifactPath()+"rexStrings/";
 	}
 
-	public static String allRowsBase() {
+	public static String pathToRowsBase() {
 		return getPathMatrix()+"output/allRows/";
 	}
 

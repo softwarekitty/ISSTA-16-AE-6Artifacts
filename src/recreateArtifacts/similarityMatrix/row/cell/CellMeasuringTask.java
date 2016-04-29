@@ -2,11 +2,9 @@ package recreateArtifacts.similarityMatrix.row.cell;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
-import recreateArtifacts.similarityMatrix.row.Regex;
-import recreateArtifacts.similarityMatrix.row.RowUtil;
+import recreateArtifacts.similarityMatrix.BatchController;
+import recreateArtifacts.similarityMatrix.Regex;
 
 public class CellMeasuringTask implements Callable<CellResult> {
 	private final int rowIndex;
@@ -29,12 +27,12 @@ public class CellMeasuringTask implements Callable<CellResult> {
 
 	@Override
 	public CellResult call() throws Exception {
-		double resultValue = RowUtil.INCOMPLETE;
+		double resultValue = BatchController.INCOMPLETE;
 		double alsoMatchingCounter = 0;
 		int notMatchingCounter = 0;
 		try {
 
-			int maxNonMatches = CellUtil.getMaxNonMatches(minSim, matchStrings.length);
+			int maxNonMatches = getMaxNonMatches(minSim, matchStrings.length);
 			for (int i = 0; i < matchStrings.length; i++) {
 				if (regex.match(matchStrings[i])) {
 					alsoMatchingCounter++;
@@ -42,12 +40,12 @@ public class CellMeasuringTask implements Callable<CellResult> {
 					notMatchingCounter++;
 				}
 				if (notMatchingCounter > maxNonMatches) {
-					return new CellResult(RowUtil.BELOW_MIN, colIndex, rowIndex);
+					return new CellResult(BatchController.BELOW_MIN, colIndex, rowIndex);
 				}
 			}
 		} catch (CancellationException e) {
-			System.out.println("timeout for col: " + colIndex+" row: "+rowIndex);
-			return new CellResult(RowUtil.CANCELLED, colIndex, rowIndex);
+			System.out.println("timeout for col: " + colIndex + " row: " + rowIndex);
+			return new CellResult(BatchController.CANCELLED, colIndex, rowIndex);
 		} catch (Exception e) {
 			System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
 					+ " exception type: " + e.toString());
@@ -56,5 +54,19 @@ public class CellMeasuringTask implements Callable<CellResult> {
 		}
 		resultValue = alsoMatchingCounter / matchStrings.length;
 		return new CellResult(resultValue, colIndex, rowIndex);
+	}
+
+	private int getMaxNonMatches(double minSimilarity, int nMatchingStrings) {
+		/**
+		 * this is a simple calculation, but an important number, if we want to
+		 * skip doing n calculations and claim that it is because that row would
+		 * have turned out to be below the minimum similarity anyway.
+		 */
+		double partMaxNonMatch = 1 - minSimilarity;
+		double maxNonMatchDouble = nMatchingStrings * partMaxNonMatch;
+
+		// this may round down, so add one back just to be sure
+		int nMaxNonMatch = (int) maxNonMatchDouble + 1;
+		return nMaxNonMatch;
 	}
 }

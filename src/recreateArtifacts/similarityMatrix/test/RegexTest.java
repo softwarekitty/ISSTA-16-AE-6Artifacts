@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import recreateArtifacts.similarityMatrix.row.Regex;
+import recreateArtifacts.similarityMatrix.Regex;
 import recreateArtifacts.similarityMatrix.row.cell.MatchTask;
 
 // keep this proof
