@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import recreateArtifacts.similarityMatrix.Regex;
-import recreateArtifacts.similarityMatrix.row.cell.MatchTask;
 
 // keep this proof
 public class RegexTest {

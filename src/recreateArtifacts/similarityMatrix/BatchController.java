@@ -12,14 +12,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import recreateArtifacts.similarityMatrix.row.MatrixRow;
-import recreateArtifacts.similarityMatrix.row.RowResult;
-import recreateArtifacts.similarityMatrix.row.cell.CellMeasuringTask;
-import recreateArtifacts.similarityMatrix.row.cell.CellResult;
-
 public class BatchController {
-
-	private static final int ROW_TIME_LIMIT_MS = 8000;
+	
+//	private static final int ROW_TIME_LIMIT_MS = 8000;
+	private static final int CELL_TIME_LIMIT_MS = 8000;
 	private static final int ROW_THREAD_COUNT = 64;
 
 	// these seem like some common names - package visibility please
@@ -57,9 +53,9 @@ public class BatchController {
 			String[] matchStrings = group.getInputSetStrings(rowIndex);
 
 			System.out.println("starting row: " + rowIndex);
-			RowResult result = computeOneRow(rowIndex, matchStrings, group, ROW_TIME_LIMIT_MS, minSimilarity, service,
+			double[] rowArray = computeOneRow(rowIndex, matchStrings, group, CELL_TIME_LIMIT_MS, minSimilarity, service,
 					canceller);
-			MatrixRow mr = new MatrixRow(result.getRowArray());
+			MatrixRow mr = new MatrixRow(rowArray);
 			mr.writeRowToFile(group.getRowPath(rowIndex), minSimilarity);
 			System.out
 					.println("completed i: " + rowIndex + "/" + group.size() + " nMatchStrings:" + matchStrings.length);
@@ -71,8 +67,8 @@ public class BatchController {
 		canceller.awaitTermination(10000, TimeUnit.MILLISECONDS);
 	}
 
-	public static RowResult computeOneRow(int rowIndex, String[] matchStrings, RegexInputGroup group,
-			int rowTimeLimitMS, double minSimilarity, ExecutorService service, ScheduledExecutorService canceller)
+	public static double[] computeOneRow(int rowIndex, String[] matchStrings, RegexInputGroup group,
+			int cellTimeLimitMS, double minSimilarity, ExecutorService service, ScheduledExecutorService canceller)
 			throws Exception {
 		// initialize the row array
 		int nKeys = group.size();
@@ -87,11 +83,9 @@ public class BatchController {
 					new CellMeasuringTask(rowIndex, colIndex, minSimilarity, group.getRegex(colIndex), matchStrings));
 		}
 
-		// only cancel a row after a very long time - that's 20 minutes.
-		int longTimeMS = 1000 * 60;
 		HashMap<Integer, Future<CellResult>> rowIndexResultFutureMap = new HashMap<Integer, Future<CellResult>>();
 		for (CellMeasuringTask task : matchingTasks) {
-			rowIndexResultFutureMap.put(task.getColIndex(), executeTask(task, longTimeMS, service, canceller));
+			rowIndexResultFutureMap.put(task.getColIndex(), executeTask(task, cellTimeLimitMS, service, canceller));
 		}
 
 		for (Integer colIndex : rowIndexResultFutureMap.keySet()) {
@@ -104,7 +98,7 @@ public class BatchController {
 			}
 			rowArray[colIndex] = cellValue;
 		}
-		return new RowResult(rowArray, rowIndex);
+		return rowArray;
 	}
 
 	public static Future<CellResult> executeTask(CellMeasuringTask task, int timeoutMS, ExecutorService service,

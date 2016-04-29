@@ -6,12 +6,33 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import main.io.IOUtil;
 
+/**
+ * this class represents a group of regexes and inputs used to test for
+ * similarity.
+ * 
+ * This class also hides a technique for partitioning an arbitrarily large
+ * number of files into a number of folders roughly equal to the number of files
+ * per folder, based on the square root (of the number of files).
+ * 
+ * It also hides the complexity of two different types of indices for regexes:
+ * the row index (same as column index) and the index within the corpus, which
+ * is based on the ordering of raw patterns.
+ * 
+ * Since many regexes may be excluded from this analysis, we will want to be
+ * able to use the matrix indexes in the rest of this code, but be able to
+ * output the indexes from the corpus in the final .abc file, so that other code
+ * can access the original regex and project set information.
+ * 
+ * @author cc
+ *
+ */
 public class RegexInputGroup {
 	private static final String ROW_PREFIX = "row_";
 	private static final String ROW_SUFFIX = ".txt";
@@ -25,6 +46,18 @@ public class RegexInputGroup {
 	private final String rowBase;
 	private final String inputDelimiter;
 
+	/**
+	 * creates a regex input group by extracting the regexes from the
+	 * filteredCorpus path. Also validates that the input sets are the
+	 * appropriate size and creates a folder system for saving row data.
+	 * 
+	 * @param filteredCorpusPath
+	 * @param inputSetPath
+	 * @param rowBase
+	 * @param nMatchStrings
+	 * @param inputDelimiter
+	 * @throws Exception
+	 */
 	public RegexInputGroup(String filteredCorpusPath, String inputSetPath, String rowBase, int nMatchStrings,
 			String inputDelimiter) throws Exception {
 		this.inputSetBase = inputSetPath;
@@ -41,22 +74,6 @@ public class RegexInputGroup {
 			if (lineMatcher.find()) {
 				int index = Integer.parseInt(lineMatcher.group(1));
 				String pattern = lineMatcher.group(2);
-
-				/**
-				 * the keys for this map are the index of the regex in the
-				 * corpus. Since many regexes may be excluded from this
-				 * analysis, these keys are necessarily going to be different
-				 * from the row indices of the matrix, but we will want to go
-				 * between them.
-				 * 
-				 * Here we use a map where keys are kept in sorted order
-				 * (TreeMap).
-				 * 
-				 * This allows the index of the matrix row to easily translate
-				 * to the index in the original corpus, using the keyset of the
-				 * map.
-				 * 
-				 */
 				regexMap.put(index, new Regex(pattern));
 			}
 		}
@@ -67,6 +84,14 @@ public class RegexInputGroup {
 		}
 		validateInputSetSizes(nMatchStrings);
 		initializeBucketsIfNeeded();
+	}
+	
+	public RegexInputGroup(RegexInputGroup other){
+		this.inputSetBase = other.inputSetBase;
+		this.rowBase = other.rowBase;
+		this.inputDelimiter = other.inputDelimiter;
+		this.regexMap = other.regexMap;
+		this .keys = other.keys;
 	}
 
 	public Regex getRegex(int colIndex) {
@@ -107,10 +132,19 @@ public class RegexInputGroup {
 	}
 
 	public Integer[] getBatchOfIndicesForVerifyingRows(int batchSize) throws IOException {
-		return getIndices(batchSize, true);
+		return getIndices(batchSize, false);
 	}
 
-	private boolean rowFileExists(int rowIndex) {
+	public double[] getMatrixRowValuesFromFile(Integer rowIndex) throws IOException {
+		MatrixRow mr = new MatrixRow(getRowPath(rowIndex), size());
+		return mr.getValues();
+	}
+
+	public int getCorpusIndex(int i) {
+		return keys[i];
+	}
+
+	protected boolean rowFileExists(int rowIndex) {
 		File rowFile = new File(getRowPath(rowIndex));
 		return rowFile.exists();
 	}
@@ -130,8 +164,8 @@ public class RegexInputGroup {
 		return (int) Math.sqrt(size()) + 1;
 	}
 
-	private String getBucketFolder(int rowIndex) {
-		Integer nBuckets = (int) Math.sqrt(size()) + 1;
+	protected String getBucketFolder(int rowIndex) {
+		Integer nBuckets = getNBuckets();
 		Integer bucketID = rowIndex / nBuckets;
 		return getBucketName(bucketID, nBuckets);
 	}
@@ -179,7 +213,7 @@ public class RegexInputGroup {
 		return indices.toArray(new Integer[indices.size()]);
 	}
 
-	private boolean hasUnverifiedTimeouts(int rowIndex) throws IOException {
+	protected boolean hasUnverifiedTimeouts(int rowIndex) throws IOException {
 		String rowFilePath = getRowPath(rowIndex);
 		File rowFile = new File(rowFilePath);
 		if (!rowFile.exists()) {
