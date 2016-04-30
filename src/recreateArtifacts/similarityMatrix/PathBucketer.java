@@ -3,24 +3,24 @@ package recreateArtifacts.similarityMatrix;
 import java.io.File;
 
 public class PathBucketer {
-	
+
 	private static final String ROW_PREFIX = "row_";
 	private static final String ROW_SUFFIX = ".txt";
 	private static final String INPUT_SET_PREFIX = "rex_";
 	private static final String INPUT_SET_SUFFIX = ".txt";
 	private static final String PATH_SEP = "/";
-	
+
 	private final int size;
 	private final String inputSetBase;
 	private final String rowBase;
-	
-	public PathBucketer(int size, String inputSetBase, String rowBase){
+
+	public PathBucketer(int size, String inputSetBase, String rowBase) {
 		this.size = size;
 		this.inputSetBase = inputSetBase;
 		this.rowBase = rowBase;
 		initializeBucketFoldersIfNeeded();
 	}
-	
+
 	public String getRowPath(Integer rowIndex) {
 		return rowBase + getBucketFolder(rowIndex) + PATH_SEP + ROW_PREFIX + rowIndex.toString() + ROW_SUFFIX;
 	}
@@ -29,9 +29,7 @@ public class PathBucketer {
 		return inputSetBase + getBucketFolder(rowIndex) + PATH_SEP + INPUT_SET_PREFIX + rowIndex.toString()
 				+ INPUT_SET_SUFFIX;
 	}
-	
-	
-	
+
 	private void initializeBucketFoldersIfNeeded() {
 		int nBuckets = getNBuckets();
 		for (int bucketNumber = 0; bucketNumber < nBuckets; bucketNumber++) {

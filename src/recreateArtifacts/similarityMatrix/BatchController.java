@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class BatchController {
 
 	private static final int CELL_TIME_LIMIT_MS = 8000;
-	private static final int VERIFY_CELL_TIME_LIMIT_MS = 20000;
+	private static final int VERIFY_SINGLE_INPUT_LIMIT_MS = 1200;
 	private static final int ROW_THREAD_COUNT = 64;
 	private static final int CELL_THREAD_COUNT = 16;
 
@@ -29,7 +29,6 @@ public class BatchController {
 	public final static double VERIFIED_TIMEOUT = 0.00000701702703;
 	public final static double BELOW_MIN = 0.00000307207107;
 	public static final double CELL_VALUE_ERROR = 0.00000412436418;
-	private static final int OUTPUT_MOD = 20;
 
 	public static void buildBatchOfRows(RegexInputGroup group, double minSimilarity, int[] batchIndices)
 			throws Exception {
@@ -88,7 +87,8 @@ public class BatchController {
 
 		HashMap<Integer, Future<CellResult>> rowIndexResultFutureMap = new HashMap<Integer, Future<CellResult>>();
 		for (CellMeasuringTask task : matchingTasks) {
-			rowIndexResultFutureMap.put(task.getColIndex(), executeTask(task, CELL_TIME_LIMIT_MS, service, canceller));
+			rowIndexResultFutureMap.put(task.getColIndex(),
+					executeCellTask(task, CELL_TIME_LIMIT_MS, service, canceller));
 		}
 
 		for (Integer colIndex : rowIndexResultFutureMap.keySet()) {
@@ -123,45 +123,70 @@ public class BatchController {
 			}
 		});
 
-		HashMap<CellResult, Future<CellResult>> validationMap = new HashMap<CellResult, Future<CellResult>>();
 		for (CellResult invalidCell : unverifiedCells) {
 			int rowIndex = invalidCell.getRowIndex();
 			int colIndex = invalidCell.getColIndex();
-			CellMeasuringTask task = new CellMeasuringTask(rowIndex, colIndex, minSim, group.getRegex(colIndex),
-					group.getInputSetStrings(rowIndex));
-			validationMap.put(invalidCell, executeTask(task, VERIFY_CELL_TIME_LIMIT_MS, service, canceller));
-		}
+			String[] inputSet = group.getInputSetStrings(rowIndex);
+			HashMap<Integer, Future<Boolean>> inputFutureMap = new HashMap<Integer, Future<Boolean>>();
+			Regex regex = group.getRegex(colIndex);
+			for (int i = 0; i < inputSet.length; i++) {
+				MatchTask task = new MatchTask(regex, inputSet[i]);
+				inputFutureMap.put(i, executeMatchTask(task, VERIFY_SINGLE_INPUT_LIMIT_MS, service, canceller));
+			}
+			double matchingSum = 0;
+			for (Entry<Integer, Future<Boolean>> entry : inputFutureMap.entrySet()) {
+				Integer inputIndex = entry.getKey();
+				try {
+					// hangs here, may be interrupted
+					Boolean outcome = entry.getValue().get();
+					if (outcome) {
+						matchingSum++;
+					}
 
-		// if this gets too IO-heavy, it could be optimized, organized by row
-		// for now, this way is probably okay
-		int cellValueCounter = 0;
-		for (Entry<CellResult, Future<CellResult>> entry : validationMap.entrySet()) {
-			CellResult invalidCell = entry.getKey();
-			Future<CellResult> futureValidCell = entry.getValue();
-			try{
-				CellResult validCell = futureValidCell.get();
-				if (validCell.getValue() == CANCELLED) {
-					group.setCellValue(
-							new CellResult(VERIFIED_TIMEOUT, invalidCell.getRowIndex(), invalidCell.getColIndex()), minSim);
-				} else {
-					group.setCellValue(validCell, minSim);
+					// if it hangs, it should be interrupted eventually
+				} catch (CancellationException ce) {
+					System.err.println("cancellation counted as not a match for col: " + colIndex + " row: " + rowIndex
+							+ " inputIndex: " + inputIndex);
+
+				} catch (RuntimeException re) {
+					Throwable cause = re.getCause();
+					if (cause != null && cause instanceof InterruptedException) {
+						System.err.println("interruption counted as not a match for col: " + colIndex + " row: "
+								+ rowIndex + " inputIndex: " + inputIndex);
+					} else {
+
+						// if something else happens, consider this incomplete
+						System.err.println("unexpected exception in cell - row: " + rowIndex + " col: " + colIndex
+								+ " exception type: " + re.toString());
+						re.printStackTrace();
+						group.setCellValue(new CellResult(INCOMPLETE, rowIndex, colIndex), minSim);
+						break;
+					}
 				}
-			}catch(CancellationException ce){
-				group.setCellValue(
-						new CellResult(VERIFIED_TIMEOUT, invalidCell.getRowIndex(), invalidCell.getColIndex()), minSim);
 			}
-
-			if (cellValueCounter++ % OUTPUT_MOD == 0) {
-				System.err.println("verified cells: " + cellValueCounter + "/" + unverifiedCells.size());
-			}
+			double validatedSimilarityScore = matchingSum / inputSet.length;
+			System.out.println("validated cell - row: " + rowIndex + " col: " + colIndex);
+			group.setCellValue(new CellResult(validatedSimilarityScore, rowIndex, colIndex), minSim);
 		}
 		service.shutdownNow();
 		canceller.shutdownNow();
-		service.awaitTermination(VERIFY_CELL_TIME_LIMIT_MS + 4000, TimeUnit.MILLISECONDS);
-		canceller.awaitTermination(VERIFY_CELL_TIME_LIMIT_MS + 4000, TimeUnit.MILLISECONDS);
+		service.awaitTermination(VERIFY_SINGLE_INPUT_LIMIT_MS + 4000, TimeUnit.MILLISECONDS);
+		canceller.awaitTermination(VERIFY_SINGLE_INPUT_LIMIT_MS + 4000, TimeUnit.MILLISECONDS);
 	}
 
-	public static Future<CellResult> executeTask(CellMeasuringTask task, int timeoutMS, ExecutorService service,
+	private static Future<Boolean> executeMatchTask(MatchTask task, int verifySingleInputLimitMs,
+			ExecutorService service, ScheduledExecutorService canceller) {
+		final Future<Boolean> future = service.submit(task);
+		canceller.schedule(new Callable<Void>() {
+			public Void call() {
+				future.cancel(true);
+				return null;
+			}
+		}, verifySingleInputLimitMs, TimeUnit.MILLISECONDS);
+		return future;
+	}
+
+	public static Future<CellResult> executeCellTask(CellMeasuringTask task, int timeoutMS, ExecutorService service,
 			ScheduledExecutorService canceller) {
 		final Future<CellResult> future = service.submit(task);
 		canceller.schedule(new Callable<Void>() {

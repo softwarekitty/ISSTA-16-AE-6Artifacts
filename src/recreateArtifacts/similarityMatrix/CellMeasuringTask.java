@@ -1,7 +1,6 @@
 package recreateArtifacts.similarityMatrix;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
 
 public class CellMeasuringTask implements Callable<CellResult> {
 	private final int rowIndex;

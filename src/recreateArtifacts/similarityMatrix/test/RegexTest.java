@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import recreateArtifacts.similarityMatrix.MatchTask;
 import recreateArtifacts.similarityMatrix.Regex;
 
 // keep this proof
@@ -65,7 +66,7 @@ public class RegexTest {
 
 	private static void testNormalTimeout(MatchTask mt, int nMS) throws InterruptedException, ExecutionException {
 		long beginTime = System.currentTimeMillis();
-		ExecutorService e = getCustomExecutorService(nThreads,Thread.NORM_PRIORITY);
+		ExecutorService e = getCustomExecutorService(nThreads, Thread.NORM_PRIORITY);
 		System.out.println("timeElapsed after setup: " + (System.currentTimeMillis() - beginTime));
 
 		Future<Boolean> f = e.submit(mt);
@@ -79,7 +80,6 @@ public class RegexTest {
 		System.out.println("final timeElapsed: " + (System.currentTimeMillis() - beginTime));
 	}
 
-
 	// http://stackoverflow.com/questions/4819855/time-limit-on-individual-threads-with-executorservice
 	private static Future<Boolean> executeTask(Callable<Boolean> c, long timeoutMS, ExecutorService service,
 			ScheduledExecutorService canceller) {
@@ -92,7 +92,8 @@ public class RegexTest {
 		}, timeoutMS, TimeUnit.MILLISECONDS);
 		return future;
 	}
-	//Thread.MIN_PRIORITY
+
+	// Thread.MIN_PRIORITY
 	private static ExecutorService getCustomExecutorService(int nThreads, int priority) {
 		ExecutorService eService = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
 			public Thread newThread(Runnable r) {

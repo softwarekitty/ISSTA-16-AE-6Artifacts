@@ -82,7 +82,7 @@ public class MatrixRow {
 	private String removeBrackets(String line) {
 		int startIndex = line.indexOf("[");
 		int endIndex = line.indexOf("]");
-		return line.substring(startIndex+1, endIndex);
+		return line.substring(startIndex + 1, endIndex);
 	}
 
 	public void writeRowToFile(String rowFilePath, double minSimilarity) {
@@ -159,7 +159,6 @@ public class MatrixRow {
 	}
 
 	public void setColValue(int colIndex, double value) {
-		System.out.println("setting value to: "+value);
 		values[colIndex] = value;
 	}
 }

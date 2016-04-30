@@ -44,7 +44,7 @@ public class Regex {
 		regex = Pattern.compile(m.replaceAll("\\\\{"));
 	}
 
-	public boolean match(String matchingString) throws InterruptedException{
+	public boolean match(String matchingString) throws InterruptedException {
 		InterruptibleCharSequence seq = new InterruptibleCharSequence(
 				matchingString.subSequence(0, matchingString.length()));
 		Matcher matcher = regex.matcher(seq);

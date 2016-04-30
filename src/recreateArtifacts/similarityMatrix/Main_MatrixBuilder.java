@@ -18,49 +18,47 @@ public class Main_MatrixBuilder {
 	public final static int BUILD_BATCH_SIZE = 600;
 	public final static int VERIFY_BATCH_SIZE = 45;
 
-
 	public static void main(String[] args) throws Exception {
 		System.out.println("beginning MatrixBuilder");
 		RegexInputGroup group = getCompleteGroup();
 		buildMatrix(group);
 	}
-	
-	public static void buildMatrix(RegexInputGroup group) throws Exception{
+
+	public static void buildMatrix(RegexInputGroup group) throws Exception {
 		int[] unbuiltIndices = group.getUnbuiltRowIndices();
-		if(unbuiltIndices.length>0){
+		if (unbuiltIndices.length > 0) {
 			build(group, unbuiltIndices);
 			System.out.println("Main_MatrixBuilder completed a building step");
-		}else{
-			
-			
+		} else {
+
 			// if some cells are unverified, then verify those
 			// we use the total number in the next step, so get them all
 			List<CellResult> unverifiedCells = group.getInvalidCellResults();
-			if(unverifiedCells.size() >0){
+			if (unverifiedCells.size() > 0) {
 				verify(group, unverifiedCells);
 				System.out.println("Main_MatrixBuilder completed a verifying step");
-			}else{
-				
+			} else {
+
 				// if all rows are verified, then export
-				export(group);		
+				export(group);
 			}
 		}
 	}
 
 	public static RegexInputGroup getCompleteGroup() throws Exception {
 		List<String> indexRegexLines = IOUtil.readLines(PathUtil.pathToFilteredCorpus());
-		PathBucketer bucketer = new PathBucketer(indexRegexLines.size(),PathUtil.pathToInputSetBase(),
+		PathBucketer bucketer = new PathBucketer(indexRegexLines.size(), PathUtil.pathToInputSetBase(),
 				PathUtil.pathToRowsBase());
 		return new RegexInputGroup(indexRegexLines, N_MATCH_STRINGS, INPUT_DELIMITER, bucketer);
 	}
 
-	public static void build(RegexInputGroup group,int[] unbuiltIndices) throws Exception {
+	public static void build(RegexInputGroup group, int[] unbuiltIndices) throws Exception {
 		int nRowsBefore = group.size() - unbuiltIndices.length;
-		if(unbuiltIndices.length > BUILD_BATCH_SIZE){
+		if (unbuiltIndices.length > BUILD_BATCH_SIZE) {
 			unbuiltIndices = Arrays.copyOfRange(unbuiltIndices, 0, BUILD_BATCH_SIZE);
 		}
-		System.out.println("buildBatchSize: " + BUILD_BATCH_SIZE + " nThisBatch: " + unbuiltIndices.length + " nRowsBuiltBefore: "
-				+ nRowsBefore + " nRows: " + group.size());
+		System.out.println("buildBatchSize: " + BUILD_BATCH_SIZE + " nThisBatch: " + unbuiltIndices.length
+				+ " nRowsBuiltBefore: " + nRowsBefore + " nRows: " + group.size());
 		BatchController.buildBatchOfRows(group, MIN_SIM, unbuiltIndices);
 		int[] unbuiltIndices_after = group.getUnbuiltRowIndices();
 		int nRowsAfter = group.size() - unbuiltIndices_after.length;
@@ -68,19 +66,19 @@ public class Main_MatrixBuilder {
 				+ BUILD_BATCH_SIZE + " nThisBatch: " + unbuiltIndices.length);
 	}
 
-	public static void verify(RegexInputGroup group,List<CellResult> unverifiedCells) throws Exception {
+	public static void verify(RegexInputGroup group, List<CellResult> unverifiedCells) throws Exception {
 		int nInvalidCellsBefore = unverifiedCells.size();
-		if(unverifiedCells.size() > VERIFY_BATCH_SIZE){
+		if (unverifiedCells.size() > VERIFY_BATCH_SIZE) {
 			unverifiedCells = unverifiedCells.subList(0, VERIFY_BATCH_SIZE);
 		}
-		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedCells.size() + " nInvalidCellsBefore: "
-				+ nInvalidCellsBefore + " nRows: " + group.size());
+		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedCells.size()
+				+ " nInvalidCellsBefore: " + nInvalidCellsBefore + " nRows: " + group.size());
 		BatchController.verifyBatchOfCells(group, MIN_SIM, unverifiedCells);
 		List<CellResult> unverifiedCells_after = group.getInvalidCellResults();
-		
+
 		int nInvalidCellsAfter = unverifiedCells_after.size();
-		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedCells_after.size() + " nInvalidCellsAfter: "
-				+ nInvalidCellsAfter + " nRows: " + group.size());
+		System.out.println("verifyBatchSize: " + VERIFY_BATCH_SIZE + " nThisBatch: " + unverifiedCells_after.size()
+				+ " nInvalidCellsAfter: " + nInvalidCellsAfter + " nRows: " + group.size());
 	}
 
 	public static void export(RegexInputGroup group) throws IOException {
@@ -91,7 +89,6 @@ public class Main_MatrixBuilder {
 
 	private static void createABC(String abcOutputPath, RegexInputGroup group) throws IOException {
 		DecimalFormat df5 = new DecimalFormat("0.#####");
-		
 
 		// initialize an empty matrix
 		double unsetValue = -2.1435465768;

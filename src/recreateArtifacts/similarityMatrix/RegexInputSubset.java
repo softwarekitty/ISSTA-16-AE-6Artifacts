@@ -98,17 +98,18 @@ public class RegexInputSubset extends RegexInputGroup {
 		}
 		return invalidCells;
 	}
-	
+
 	/**
 	 * set an individual cell value
+	 * 
 	 * @param cellValue
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void setCellValue(CellResult cellResult, double minSimilarity) throws IOException {
 		int rowIndex = cellResult.getRowIndex();
 		int colIndex = cellResult.getColIndex();
 		MatrixRow mr = this.getRow(rowIndex);
-		mr.setColValue(colIndex,cellResult.getValue());
+		mr.setColValue(colIndex, cellResult.getValue());
 		mr.writeRowToFile(bucketer.getRowPath(subsetKeys[rowIndex]), minSimilarity);
 	}
 
