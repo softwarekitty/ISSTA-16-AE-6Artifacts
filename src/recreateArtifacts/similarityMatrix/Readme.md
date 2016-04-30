@@ -30,7 +30,7 @@ Running this program can take over half an hour on the given input.
 
 The original version is in C#, and this version is a port to Java.  This version gets slightly different results in the *similarityGraph.abc* file, as the regex engine used to determine a match has some different rules.  The clusters formed from the resulting file, however, are mostly the same (some clusters are missing one pattern or so).
 
-Being nearly identical, these clusters fall into the same categories as presented in the paper.
+Being nearly identical, these clusters fall into the same categories as presented in the paper.  A diff of the *cluster.tsv* file (see image in this directory) shows that some of the larger clusters have changed their ordering, and a handful of small clusters are broken up differntly.
 
 This version is remarkably faster, able to finish in about half an hour instead of a day or two.  For testing, a subset of the provided inputs can be created as a view of the original (see Test_MatrixBuilder).
 
