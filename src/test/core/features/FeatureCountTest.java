@@ -1,6 +1,8 @@
 package test.core.features;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 
@@ -26,7 +28,7 @@ public final class FeatureCountTest {
 		int[] counts = new int[fd.getSize()];
 		Arrays.fill(counts, 1);
 		FeatureCount fc = new FeatureCount(counts,fd);
-		Assert.assertNotNull(fc);
+		assertNotNull(fc);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -36,7 +38,7 @@ public final class FeatureCountTest {
 		int[] counts = new int[fd.getSize()-1];
 		Arrays.fill(counts, 1);
 		FeatureCount fc = new FeatureCount(counts,fd);	
-		Assert.assertNull(fc);
+		assertNull(fc);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -46,7 +48,7 @@ public final class FeatureCountTest {
 		int[] counts = new int[fd.getSize()+1];
 		Arrays.fill(counts, 1);
 		FeatureCount fc = new FeatureCount(counts,fd);	
-		Assert.assertNull(fc);
+		assertNull(fc);
 	}
 	
 	@Test
