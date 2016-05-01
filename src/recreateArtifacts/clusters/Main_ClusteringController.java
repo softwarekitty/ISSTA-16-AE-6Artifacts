@@ -96,7 +96,7 @@ public class Main_ClusteringController {
 					boolean added = cluster.add(rps);
 					if (!added) {
 						System.out.println(
-								"indexValue: " + indexValue + " failure to add: " + DumpUtil.dumpRegex(0, 1, rps)
+								"indexValue: " + indexValue + " failure to add: " + rps.toString()
 										+ " problem with: " + Arrays.toString(indices) + "on line: " + lineNumber);
 					}
 				}

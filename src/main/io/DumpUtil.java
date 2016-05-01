@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.StringUtils;
-
 import main.core.RegexProjectSet;
 import main.core.categories.Cluster;
 
@@ -52,12 +50,6 @@ public class DumpUtil {
 
 	public static String getClusterDescription(Cluster cluster) {
 		return "(" + cluster.getNProjects() + " \\<" + cluster.size() + "\\>)";
-	}
-
-	public static String dumpRegex(int index, int paddedSize, RegexProjectSet regex) {
-		return StringUtils.leftPad(String.valueOf(index), paddedSize, "0") + " | "
-				+ StringUtils.leftPad(String.valueOf(regex.getNProjects()), paddedSize, "0") + " | "
-				+ regex.getPattern() + "\n";
 	}
 	
 	public static String projectCSV(RegexProjectSet regex){
