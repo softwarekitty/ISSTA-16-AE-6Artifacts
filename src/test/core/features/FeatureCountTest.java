@@ -53,7 +53,6 @@ public final class FeatureCountTest {
 	public void test_cannotModifyArray() {
 		
 		// create feature count with all set to 1
-		FeatureDictionary fd = new FeatureDictionary();
 		int[] counts = new int[fd.getSize()];
 		Arrays.fill(counts, 1);
 		FeatureCount fc = new FeatureCount(counts,fd);
