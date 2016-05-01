@@ -15,7 +15,7 @@ public final class FeatureCountTest {
 	private static FeatureDictionary fd;
 	
 	@Before
-	public static void setup(){
+	public void setup(){
 		fd = new FeatureDictionary();
 	}
 	

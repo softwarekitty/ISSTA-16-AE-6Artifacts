@@ -83,7 +83,7 @@ public final class RegexProjectSetTest {
 		new RegexProjectSet("\"\\\\\"", pidList.get(0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = QuoteRuleException.class)
 	public void test_emptyPattern() throws IllegalArgumentException, QuoteRuleException, PythonParsingException {
 		new RegexProjectSet("", pidList.get(0));
 	}
